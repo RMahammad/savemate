@@ -14,6 +14,19 @@ export function HomePage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
+  function dealsHref(params: Record<string, string | undefined>) {
+    const sp = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value) sp.set(key, value);
+    }
+    const qs = sp.toString();
+    return `/deals${qs ? `?${qs}` : ""}`;
+  }
+
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoIso = weekAgo.toISOString().slice(0, 10);
+
   const trending = useDealsFeed("home-trending?sort=newest&limit=8", {
     page: 1,
     limit: 8,
@@ -39,9 +52,7 @@ export function HomePage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 const q = query.trim();
-                const sp = new URLSearchParams();
-                if (q) sp.set("q", q);
-                navigate(`/deals${sp.toString() ? `?${sp.toString()}` : ""}`);
+                navigate(dealsHref({ q }));
               }}
             >
               <Input
@@ -57,6 +68,69 @@ export function HomePage() {
                 </Button>
               </div>
             </form>
+
+            <div className="mt-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-xs font-medium text-slate-600">
+                  Popular:
+                </div>
+                {[
+                  { label: "Coffee", params: { q: "coffee" } },
+                  { label: "Groceries", params: { q: "groceries" } },
+                  { label: "Pharmacy", params: { q: "pharmacy" } },
+                  { label: "Warsaw", params: { city: "Warsaw" } },
+                ].map((item) => (
+                  <Button
+                    key={item.label}
+                    asChild
+                    size="sm"
+                    variant="secondary"
+                    className="h-8 rounded-full px-3"
+                  >
+                    <Link to={dealsHref(item.params)}>{item.label}</Link>
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                >
+                  <Link to={dealsHref({ sort: "newest" })}>Newest</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                >
+                  <Link to={dealsHref({ sort: "biggestDiscount" })}>
+                    Biggest discount
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                >
+                  <Link to={dealsHref({ maxPrice: "20" })}>Under 20 PLN</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                >
+                  <Link to={dealsHref({ dateFrom: weekAgoIso })}>
+                    This week
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1">
