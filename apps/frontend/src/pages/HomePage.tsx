@@ -10,13 +10,153 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
+import type { LucideIcon } from "lucide-react";
+
 import { ChevronDown, Filter, ShieldCheck, Sparkles } from "lucide-react";
+
+type DealsParams = Record<string, string | undefined>;
+
+const popularChips: Array<{
+  label: string;
+  params: DealsParams;
+  className: string;
+}> = [
+  {
+    label: "Coffee",
+    params: { q: "coffee" },
+    className: "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
+  },
+  {
+    label: "Groceries",
+    params: { q: "groceries" },
+    className:
+      "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
+  },
+  {
+    label: "Pharmacy",
+    params: { q: "pharmacy" },
+    className: "border-sky-200 bg-sky-50 text-sky-800 hover:bg-sky-100",
+  },
+  {
+    label: "Warsaw",
+    params: { city: "Warsaw" },
+    className:
+      "border-violet-200 bg-violet-50 text-violet-800 hover:bg-violet-100",
+  },
+];
+
+const infoCards: Array<{
+  title: string;
+  description: string;
+  Icon: LucideIcon;
+  cardClassName: string;
+  iconClassName: string;
+}> = [
+  {
+    title: "Fast filters",
+    description: "Narrow by city, price, tags, and discount.",
+    Icon: Filter,
+    cardClassName: "bg-gradient-to-br from-white/80 to-indigo-50/60 pb-4",
+    iconClassName: "border-indigo-200 bg-indigo-50 text-indigo-700",
+  },
+  {
+    title: "Fresh offers",
+    description: "Discover new deals as they get published.",
+    Icon: Sparkles,
+    cardClassName: "bg-gradient-to-br from-white/80 to-amber-50/60 pb-4",
+    iconClassName: "border-amber-200 bg-amber-50 text-amber-700",
+  },
+  {
+    title: "Trusted listings",
+    description: "Verified details and validity dates.",
+    Icon: ShieldCheck,
+    cardClassName: "bg-gradient-to-br from-white/80 to-emerald-50/60 pb-4",
+    iconClassName: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  },
+];
+
+const pricingPlans: Array<{
+  title: string;
+  price: string;
+  subtitle: string;
+  bullets: string[];
+  ctaLabel: string;
+  ctaHref: string;
+  ctaVariant: "default" | "secondary";
+  cardClassName?: string;
+  badge?: {
+    label: string;
+    variant: "success" | "warning" | "danger" | "default" | "secondary";
+  };
+}> = [
+  {
+    title: "Free",
+    price: "0 PLN",
+    subtitle: "For browsing deals",
+    bullets: ["Search + filters", "Deal details", "Save time on shopping"],
+    ctaLabel: "Get started",
+    ctaHref: "/deals",
+    ctaVariant: "secondary",
+  },
+  {
+    title: "Business",
+    price: "49 PLN",
+    subtitle: "Per month",
+    bullets: ["Publish deals", "Manage your listings", "Reach local shoppers"],
+    ctaLabel: "Create account",
+    ctaHref: "/register",
+    ctaVariant: "default",
+    cardClassName: "border-indigo-200 bg-indigo-50/30",
+    badge: { label: "Most popular", variant: "success" },
+  },
+  {
+    title: "Enterprise",
+    price: "Custom",
+    subtitle: "For larger teams",
+    bullets: [
+      "Multi-location support",
+      "Priority moderation",
+      "Custom integrations",
+    ],
+    ctaLabel: "Contact sales",
+    ctaHref: "/register",
+    ctaVariant: "secondary",
+  },
+];
+
+const faqItems: Array<{ question: string; answer: string }> = [
+  {
+    question: "How do I find deals in my city?",
+    answer:
+      "Use the search box on the homepage, or open the Deals page and filter by city/voivodeship.",
+  },
+  {
+    question: "Do I need an account to browse deals?",
+    answer:
+      "No — browsing is free. Create an account if you want business features or access to protected areas.",
+  },
+  {
+    question: "What do “Newest” and “Biggest discount” mean?",
+    answer:
+      "“Newest” sorts by recently published deals. “Biggest discount” prioritizes offers with the highest percentage discount.",
+  },
+  {
+    question: "How do businesses publish deals?",
+    answer:
+      "Register as a Business user, then go to the Business dashboard to create and manage your listings.",
+  },
+  {
+    question: "Are deals moderated?",
+    answer:
+      "Yes — business listings can go through moderation before appearing publicly, and always show validity dates.",
+  },
+];
 
 export function HomePage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
-  function dealsHref(params: Record<string, string | undefined>) {
+  function dealsHref(params: DealsParams) {
     const sp = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
       if (value) sp.set(key, value);
@@ -76,32 +216,7 @@ export function HomePage() {
                 <div className="text-xs font-medium text-slate-600">
                   Popular:
                 </div>
-                {[
-                  {
-                    label: "Coffee",
-                    params: { q: "coffee" },
-                    className:
-                      "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
-                  },
-                  {
-                    label: "Groceries",
-                    params: { q: "groceries" },
-                    className:
-                      "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
-                  },
-                  {
-                    label: "Pharmacy",
-                    params: { q: "pharmacy" },
-                    className:
-                      "border-sky-200 bg-sky-50 text-sky-800 hover:bg-sky-100",
-                  },
-                  {
-                    label: "Warsaw",
-                    params: { city: "Warsaw" },
-                    className:
-                      "border-violet-200 bg-violet-50 text-violet-800 hover:bg-violet-100",
-                  },
-                ].map((item) => (
+                {popularChips.map((item) => (
                   <Button
                     key={item.label}
                     asChild
@@ -156,53 +271,27 @@ export function HomePage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1">
-            <Card className="bg-gradient-to-br from-white/80 to-indigo-50/60 pb-4">
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700">
-                    <Filter className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle>Fast filters</CardTitle>
-                    <div className="mt-1 text-sm text-slate-600">
-                      Narrow by city, price, tags, and discount.
+            {infoCards.map(
+              ({ title, description, Icon, cardClassName, iconClassName }) => (
+                <Card key={title} className={cardClassName}>
+                  <CardHeader>
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl border ${iconClassName}`}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <CardTitle>{title}</CardTitle>
+                        <div className="mt-1 text-sm text-slate-600">
+                          {description}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-white/80 to-amber-50/60 pb-4">
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
-                    <Sparkles className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle>Fresh offers</CardTitle>
-                    <div className="mt-1 text-sm text-slate-600">
-                      Discover new deals as they get published.
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-white/80 to-emerald-50/60 pb-4">
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700">
-                    <ShieldCheck className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle>Trusted listings</CardTitle>
-                    <div className="mt-1 text-sm text-slate-600">
-                      Verified details and validity dates.
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
+                  </CardHeader>
+                </Card>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -263,72 +352,40 @@ export function HomePage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Free</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-semibold">0 PLN</div>
-              <div className="mt-1 text-sm text-slate-600">
-                For browsing deals
-              </div>
-              <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                <li>Search + filters</li>
-                <li>Deal details</li>
-                <li>Save time on shopping</li>
-              </ul>
-              <div className="mt-5">
-                <Button asChild className="w-full" variant="secondary">
-                  <Link to="/deals">Get started</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-indigo-200 bg-indigo-50/30">
-            <CardHeader className="flex flex-row items-start justify-between gap-3">
-              <CardTitle>Business</CardTitle>
-              <Badge variant="success" className="mt-0.5">
-                Most popular
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-semibold">49 PLN</div>
-              <div className="mt-1 text-sm text-slate-600">Per month</div>
-              <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                <li>Publish deals</li>
-                <li>Manage your listings</li>
-                <li>Reach local shoppers</li>
-              </ul>
-              <div className="mt-5">
-                <Button asChild className="w-full">
-                  <Link to="/register">Create account</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Enterprise</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-semibold">Custom</div>
-              <div className="mt-1 text-sm text-slate-600">
-                For larger teams
-              </div>
-              <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                <li>Multi-location support</li>
-                <li>Priority moderation</li>
-                <li>Custom integrations</li>
-              </ul>
-              <div className="mt-5">
-                <Button asChild className="w-full" variant="secondary">
-                  <Link to="/register">Contact sales</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {pricingPlans.map((plan) => (
+            <Card key={plan.title} className={plan.cardClassName}>
+              <CardHeader
+                className={
+                  plan.badge
+                    ? "flex flex-row items-start justify-between gap-3"
+                    : undefined
+                }
+              >
+                <CardTitle>{plan.title}</CardTitle>
+                {plan.badge ? (
+                  <Badge variant={plan.badge.variant} className="mt-0.5">
+                    {plan.badge.label}
+                  </Badge>
+                ) : null}
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-semibold">{plan.price}</div>
+                <div className="mt-1 text-sm text-slate-600">
+                  {plan.subtitle}
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                  {plan.bullets.map((b) => (
+                    <li key={b}>{b}</li>
+                  ))}
+                </ul>
+                <div className="mt-5">
+                  <Button asChild className="w-full" variant={plan.ctaVariant}>
+                    <Link to={plan.ctaHref}>{plan.ctaLabel}</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
@@ -343,60 +400,17 @@ export function HomePage() {
         <Card>
           <CardContent className="p-0">
             <div className="divide-y divide-slate-200">
-              <details className="group px-6 py-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
-                  <span>How do I find deals in my city?</span>
-                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="mt-2 text-sm text-slate-600">
-                  Use the search box on the homepage, or open the Deals page and
-                  filter by city/voivodeship.
-                </div>
-              </details>
-
-              <details className="group px-6 py-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
-                  <span>Do I need an account to browse deals?</span>
-                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="mt-2 text-sm text-slate-600">
-                  No — browsing is free. Create an account if you want business
-                  features or access to protected areas.
-                </div>
-              </details>
-
-              <details className="group px-6 py-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
-                  <span>What do “Newest” and “Biggest discount” mean?</span>
-                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="mt-2 text-sm text-slate-600">
-                  “Newest” sorts by recently published deals. “Biggest discount”
-                  prioritizes offers with the highest percentage discount.
-                </div>
-              </details>
-
-              <details className="group px-6 py-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
-                  <span>How do businesses publish deals?</span>
-                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="mt-2 text-sm text-slate-600">
-                  Register as a Business user, then go to the Business dashboard
-                  to create and manage your listings.
-                </div>
-              </details>
-
-              <details className="group px-6 py-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
-                  <span>Are deals moderated?</span>
-                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="mt-2 text-sm text-slate-600">
-                  Yes — business listings can go through moderation before
-                  appearing publicly, and always show validity dates.
-                </div>
-              </details>
+              {faqItems.map((item) => (
+                <details key={item.question} className="group px-6 py-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
+                    <span>{item.question}</span>
+                    <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="mt-2 text-sm text-slate-600">
+                    {item.answer}
+                  </div>
+                </details>
+              ))}
             </div>
           </CardContent>
         </Card>
