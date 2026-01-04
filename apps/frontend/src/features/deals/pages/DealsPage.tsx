@@ -11,11 +11,107 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/sonner";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
 import { useDealsQuery } from "@/features/deals/hooks/useDealsQuery";
+import { formatDealsSortLabel } from "@/features/deals/sort";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 export function DealsPage() {
   const { query, searchKey, setParam, clearAll } = useDealsQuery();
   const [isClearOpen, setIsClearOpen] = useState(false);
+
+  const activeChips: Array<{
+    key: string;
+    label: string;
+    onRemove: () => void;
+  }> = [];
+
+  if (query.q) {
+    activeChips.push({
+      key: "q",
+      label: `Search: ${query.q}`,
+      onRemove: () => setParam({ q: undefined }),
+    });
+  }
+
+  if (query.city) {
+    activeChips.push({
+      key: "city",
+      label: `City: ${query.city}`,
+      onRemove: () => setParam({ city: undefined }),
+    });
+  }
+
+  if (query.voivodeship) {
+    activeChips.push({
+      key: "voivodeship",
+      label: `Voivodeship: ${query.voivodeship}`,
+      onRemove: () => setParam({ voivodeship: undefined }),
+    });
+  }
+
+  if (query.minPrice != null) {
+    activeChips.push({
+      key: "minPrice",
+      label: `Min: ${query.minPrice} PLN`,
+      onRemove: () => setParam({ minPrice: undefined }),
+    });
+  }
+
+  if (query.maxPrice != null) {
+    activeChips.push({
+      key: "maxPrice",
+      label: `Max: ${query.maxPrice} PLN`,
+      onRemove: () => setParam({ maxPrice: undefined }),
+    });
+  }
+
+  if (query.discountMin != null) {
+    activeChips.push({
+      key: "discountMin",
+      label: `Discount ≥ ${query.discountMin}%`,
+      onRemove: () => setParam({ discountMin: undefined }),
+    });
+  }
+
+  const tagsLabel =
+    typeof query.tags === "string"
+      ? query.tags
+      : Array.isArray(query.tags)
+        ? query.tags.join(",")
+        : "";
+  if (tagsLabel) {
+    activeChips.push({
+      key: "tags",
+      label: `Tags: ${tagsLabel}`,
+      onRemove: () => setParam({ tags: undefined }),
+    });
+  }
+
+  if (query.dateFrom) {
+    activeChips.push({
+      key: "dateFrom",
+      label: `From: ${query.dateFrom.slice(0, 10)}`,
+      onRemove: () => setParam({ dateFrom: undefined }),
+    });
+  }
+
+  if (query.dateTo) {
+    activeChips.push({
+      key: "dateTo",
+      label: `To: ${query.dateTo.slice(0, 10)}`,
+      onRemove: () => setParam({ dateTo: undefined }),
+    });
+  }
+
+  if (query.sort && query.sort !== "newest") {
+    activeChips.push({
+      key: "sort",
+      label: `Sort: ${formatDealsSortLabel(query.sort)}`,
+      onRemove: () => setParam({ sort: undefined }),
+    });
+  }
+
+  const hasActiveFilters = activeChips.length > 0;
 
   const deals = useDealsFeed(searchKey, {
     page: query.page,
@@ -79,6 +175,35 @@ export function DealsPage() {
         </aside>
 
         <div className="space-y-4">
+          {hasActiveFilters ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="text-xs font-medium text-slate-600">
+                Active filters:
+              </div>
+
+              {activeChips.map((chip) => (
+                <button
+                  key={chip.key}
+                  type="button"
+                  onClick={chip.onRemove}
+                  className="inline-flex h-8 items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 text-xs font-medium text-slate-900 hover:bg-slate-50"
+                  title="Remove filter"
+                >
+                  <span className="max-w-[220px] truncate">{chip.label}</span>
+                  <X className="h-3.5 w-3.5 text-slate-500" />
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => setIsClearOpen(true)}
+                className="inline-flex h-8 items-center rounded-full border border-slate-200 bg-slate-50 px-3 text-xs font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Clear all
+              </button>
+            </div>
+          ) : null}
+
           <Pagination
             page={data?.page.page ?? query.page}
             totalPages={data?.page.totalPages}

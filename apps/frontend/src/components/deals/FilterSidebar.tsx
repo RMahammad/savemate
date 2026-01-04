@@ -5,14 +5,16 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DEALS_SORT_OPTIONS,
+  formatDealsSortLabel,
+} from "@/features/deals/sort";
 
 function formatTags(tags: DealsQuery["tags"]) {
   if (!tags) return "";
   if (Array.isArray(tags)) return tags.join(",");
   return tags;
 }
-
-const SORT_OPTIONS = ["newest", "biggestDiscount", "lowestPrice"] as const;
 
 export function FilterSidebar({
   query,
@@ -129,9 +131,9 @@ export function FilterSidebar({
             onChange={(e) => onChange({ sort: e.target.value || undefined })}
             className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           >
-            {SORT_OPTIONS.map((s) => (
+            {DEALS_SORT_OPTIONS.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {formatDealsSortLabel(s)}
               </option>
             ))}
           </select>
