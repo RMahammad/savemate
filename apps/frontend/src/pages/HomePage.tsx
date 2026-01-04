@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
-import { Filter, ShieldCheck, Sparkles } from "lucide-react";
+import { ChevronDown, Filter, ShieldCheck, Sparkles } from "lucide-react";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -330,6 +330,76 @@ export function HomePage() {
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">FAQ</h2>
+          <div className="mt-1 text-sm text-slate-600">
+            Quick answers to help you get started.
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y divide-slate-200">
+              <details className="group px-6 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
+                  <span>How do I find deals in my city?</span>
+                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="mt-2 text-sm text-slate-600">
+                  Use the search box on the homepage, or open the Deals page and
+                  filter by city/voivodeship.
+                </div>
+              </details>
+
+              <details className="group px-6 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
+                  <span>Do I need an account to browse deals?</span>
+                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="mt-2 text-sm text-slate-600">
+                  No — browsing is free. Create an account if you want business
+                  features or access to protected areas.
+                </div>
+              </details>
+
+              <details className="group px-6 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
+                  <span>What do “Newest” and “Biggest discount” mean?</span>
+                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="mt-2 text-sm text-slate-600">
+                  “Newest” sorts by recently published deals. “Biggest discount”
+                  prioritizes offers with the highest percentage discount.
+                </div>
+              </details>
+
+              <details className="group px-6 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
+                  <span>How do businesses publish deals?</span>
+                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="mt-2 text-sm text-slate-600">
+                  Register as a Business user, then go to the Business dashboard
+                  to create and manage your listings.
+                </div>
+              </details>
+
+              <details className="group px-6 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
+                  <span>Are deals moderated?</span>
+                  <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
+                </summary>
+                <div className="mt-2 text-sm text-slate-600">
+                  Yes — business listings can go through moderation before
+                  appearing publicly, and always show validity dates.
+                </div>
+              </details>
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
