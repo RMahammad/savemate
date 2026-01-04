@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { RegisterSchema } from "@savemate/shared-validation";
-import { typedApi } from "../api/typedClient";
+import { register } from "../api/auth";
 import type { NormalizedError } from "../api/normalizedError";
 import { useAuth } from "../auth/useAuth";
 
@@ -27,9 +27,7 @@ export function RegisterPage() {
 
     setLoading(true);
     try {
-      const res = await typedApi.request("post", "/auth/register", {
-        body: parsed.data,
-      });
+      const res = await register(parsed.data);
       setAccessToken(res.accessToken);
       navigate("/", { replace: true });
     } catch (e2) {

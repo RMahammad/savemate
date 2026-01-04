@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { ForgotPasswordSchema } from "@savemate/shared-validation";
-import { typedApi } from "../api/typedClient";
+import { forgotPassword } from "../api/auth";
 import type { NormalizedError } from "../api/normalizedError";
 
 export function ForgotPasswordPage() {
@@ -24,7 +24,7 @@ export function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      await typedApi.request("post", "/auth/forgot", { body: parsed.data });
+      await forgotPassword(parsed.data);
       setOk(true);
     } catch (e2) {
       const err = e2 as NormalizedError;

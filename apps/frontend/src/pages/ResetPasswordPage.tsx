@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { ResetPasswordSchema } from "@savemate/shared-validation";
-import { typedApi } from "../api/typedClient";
+import { resetPassword } from "../api/auth";
 import type { NormalizedError } from "../api/normalizedError";
 
 export function ResetPasswordPage() {
@@ -28,7 +28,7 @@ export function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      await typedApi.request("post", "/auth/reset", { body: parsed.data });
+      await resetPassword(parsed.data);
       setOk(true);
     } catch (e2) {
       const err = e2 as NormalizedError;

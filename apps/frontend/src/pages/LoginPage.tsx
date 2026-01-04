@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { LoginSchema } from "@savemate/shared-validation";
-import { typedApi } from "../api/typedClient";
+import { login } from "../api/auth";
 import type { NormalizedError } from "../api/normalizedError";
 import { useAuth } from "../auth/useAuth";
 
@@ -27,9 +27,7 @@ export function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await typedApi.request("post", "/auth/login", {
-        body: parsed.data,
-      });
+      const res = await login(parsed.data);
       setAccessToken(res.accessToken);
       navigate("/", { replace: true });
     } catch (e2) {

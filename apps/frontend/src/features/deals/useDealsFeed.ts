@@ -1,9 +1,11 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import type { z } from "zod";
 
 import type { paths } from "@savemate/api-client";
+import { VoivodeshipSchema } from "@savemate/shared-validation";
 
 import type { NormalizedError } from "../../api/normalizedError";
-import { typedApi } from "../../api/typedClient";
+import { listDeals } from "../../api/deals";
 
 export type DealsFeedResponse =
   paths["/deals"]["get"]["responses"][200]["content"]["application/json"];
@@ -13,7 +15,7 @@ export type DealsFeedQuery = {
   limit: number;
   q?: string;
   city?: string;
-  voivodeship?: string;
+  voivodeship?: z.infer<typeof VoivodeshipSchema>;
   minPrice?: number;
   maxPrice?: number;
   discountMin?: number;
@@ -43,8 +45,7 @@ function toApiParams(query: DealsFeedQuery) {
 export function useDealsFeed(searchKey: string, query: DealsFeedQuery) {
   return useQuery<DealsFeedResponse, NormalizedError>({
     queryKey: ["deals", searchKey],
-    queryFn: () =>
-      typedApi.request("get", "/deals", { params: toApiParams(query) }),
+    queryFn: () => listDeals(toApiParams(query)),
     placeholderData: keepPreviousData,
   });
 }

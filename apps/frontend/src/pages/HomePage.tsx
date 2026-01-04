@@ -7,6 +7,8 @@ import {
   type DealsFeedQuery,
 } from "../features/deals/useDealsFeed";
 
+type Voivodeship = (typeof VoivodeshipSchema.options)[number];
+
 function parseNumber(value: string | null): number | undefined {
   if (!value) return undefined;
   const n = Number(value);
@@ -46,7 +48,12 @@ export function HomePage() {
 
     const q = sp.get("q") ?? undefined;
     const city = sp.get("city") ?? undefined;
-    const voivodeship = sp.get("voivodeship") ?? undefined;
+    const voivodeshipRaw = sp.get("voivodeship") ?? undefined;
+    const voivodeship =
+      voivodeshipRaw &&
+      (VoivodeshipSchema.options as readonly string[]).includes(voivodeshipRaw)
+        ? (voivodeshipRaw as Voivodeship)
+        : undefined;
 
     const minPrice = parseNumber(sp.get("minPrice"));
     const maxPrice = parseNumber(sp.get("maxPrice"));
