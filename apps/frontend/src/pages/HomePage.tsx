@@ -5,10 +5,12 @@ import { DealCard } from "@/components/common/DealCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { SkeletonDealCard } from "@/components/common/SkeletonDealCard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
+import { Filter, ShieldCheck, Sparkles } from "lucide-react";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -75,17 +77,37 @@ export function HomePage() {
                   Popular:
                 </div>
                 {[
-                  { label: "Coffee", params: { q: "coffee" } },
-                  { label: "Groceries", params: { q: "groceries" } },
-                  { label: "Pharmacy", params: { q: "pharmacy" } },
-                  { label: "Warsaw", params: { city: "Warsaw" } },
+                  {
+                    label: "Coffee",
+                    params: { q: "coffee" },
+                    className:
+                      "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100",
+                  },
+                  {
+                    label: "Groceries",
+                    params: { q: "groceries" },
+                    className:
+                      "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
+                  },
+                  {
+                    label: "Pharmacy",
+                    params: { q: "pharmacy" },
+                    className:
+                      "border-sky-200 bg-sky-50 text-sky-800 hover:bg-sky-100",
+                  },
+                  {
+                    label: "Warsaw",
+                    params: { city: "Warsaw" },
+                    className:
+                      "border-violet-200 bg-violet-50 text-violet-800 hover:bg-violet-100",
+                  },
                 ].map((item) => (
                   <Button
                     key={item.label}
                     asChild
                     size="sm"
                     variant="secondary"
-                    className="h-8 rounded-full px-3"
+                    className={`h-8 rounded-full px-3 ${item.className}`}
                   >
                     <Link to={dealsHref(item.params)}>{item.label}</Link>
                   </Button>
@@ -96,16 +118,16 @@ export function HomePage() {
                 <Button
                   asChild
                   size="sm"
-                  variant="ghost"
-                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                  variant="secondary"
+                  className="h-8 rounded-full border-indigo-200 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 px-3"
                 >
                   <Link to={dealsHref({ sort: "newest" })}>Newest</Link>
                 </Button>
                 <Button
                   asChild
                   size="sm"
-                  variant="ghost"
-                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                  variant="secondary"
+                  className="h-8 rounded-full border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100 px-3"
                 >
                   <Link to={dealsHref({ sort: "biggestDiscount" })}>
                     Biggest discount
@@ -114,16 +136,16 @@ export function HomePage() {
                 <Button
                   asChild
                   size="sm"
-                  variant="ghost"
-                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                  variant="secondary"
+                  className="h-8 rounded-full border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 px-3"
                 >
                   <Link to={dealsHref({ maxPrice: "20" })}>Under 20 PLN</Link>
                 </Button>
                 <Button
                   asChild
                   size="sm"
-                  variant="ghost"
-                  className="h-8 rounded-full border border-slate-200 bg-white/60 px-3"
+                  variant="secondary"
+                  className="h-8 rounded-full border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 px-3"
                 >
                   <Link to={dealsHref({ dateFrom: weekAgoIso })}>
                     This week
@@ -134,37 +156,52 @@ export function HomePage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1">
-            <Card>
+            <Card className="bg-gradient-to-br from-white/80 to-indigo-50/60 pb-4">
               <CardHeader>
-                <CardTitle>Fast filters</CardTitle>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700">
+                    <Filter className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <CardTitle>Fast filters</CardTitle>
+                    <div className="mt-1 text-sm text-slate-600">
+                      Narrow by city, price, tags, and discount.
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-slate-600">
-                  Narrow by city, price, tags, and discount.
-                </p>
-              </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-white/80 to-amber-50/60 pb-4">
               <CardHeader>
-                <CardTitle>Fresh offers</CardTitle>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <CardTitle>Fresh offers</CardTitle>
+                    <div className="mt-1 text-sm text-slate-600">
+                      Discover new deals as they get published.
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-slate-600">
-                  Discover new deals as they get published.
-                </p>
-              </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-white/80 to-emerald-50/60 pb-4">
               <CardHeader>
-                <CardTitle>Trusted listings</CardTitle>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <CardTitle>Trusted listings</CardTitle>
+                    <div className="mt-1 text-sm text-slate-600">
+                      Verified details and validity dates.
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-slate-600">
-                  Browse verified deal details and validity dates.
-                </p>
-              </CardContent>
             </Card>
           </div>
         </div>
@@ -248,9 +285,12 @@ export function HomePage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="border-indigo-200 bg-indigo-50/30">
+            <CardHeader className="flex flex-row items-start justify-between gap-3">
               <CardTitle>Business</CardTitle>
+              <Badge variant="success" className="mt-0.5">
+                Most popular
+              </Badge>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-semibold">49 PLN</div>
