@@ -2,6 +2,12 @@ import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { VoivodeshipSchema } from "@savemate/shared-validation";
+import { DealCard } from "@/components/common/DealCard";
+import { EmptyState } from "@/components/common/EmptyState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { SkeletonDealCard } from "@/components/common/SkeletonDealCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   useDealsFeed,
   type DealsFeedQuery,
@@ -108,10 +114,10 @@ export function HomePage() {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label className="block">
             <div className="text-sm text-slate-700">Search</div>
-            <input
+            <Input
               value={query.q ?? ""}
               onChange={(e) => setParam({ q: e.target.value || undefined })}
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               placeholder="e.g. coffee"
               type="text"
             />
@@ -119,10 +125,10 @@ export function HomePage() {
 
           <label className="block">
             <div className="text-sm text-slate-700">City</div>
-            <input
+            <Input
               value={query.city ?? ""}
               onChange={(e) => setParam({ city: e.target.value || undefined })}
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               placeholder="e.g. Warsaw"
               type="text"
             />
@@ -148,14 +154,14 @@ export function HomePage() {
 
           <label className="block">
             <div className="text-sm text-slate-700">Min price</div>
-            <input
+            <Input
               value={query.minPrice ?? ""}
               onChange={(e) =>
                 setParam({
                   minPrice: e.target.value ? String(e.target.value) : undefined,
                 })
               }
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               type="number"
               inputMode="decimal"
             />
@@ -163,14 +169,14 @@ export function HomePage() {
 
           <label className="block">
             <div className="text-sm text-slate-700">Max price</div>
-            <input
+            <Input
               value={query.maxPrice ?? ""}
               onChange={(e) =>
                 setParam({
                   maxPrice: e.target.value ? String(e.target.value) : undefined,
                 })
               }
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               type="number"
               inputMode="decimal"
             />
@@ -178,7 +184,7 @@ export function HomePage() {
 
           <label className="block">
             <div className="text-sm text-slate-700">Discount min %</div>
-            <input
+            <Input
               value={query.discountMin ?? ""}
               onChange={(e) =>
                 setParam({
@@ -187,7 +193,7 @@ export function HomePage() {
                     : undefined,
                 })
               }
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               type="number"
               inputMode="decimal"
             />
@@ -195,10 +201,10 @@ export function HomePage() {
 
           <label className="block">
             <div className="text-sm text-slate-700">Tags (comma separated)</div>
-            <input
+            <Input
               value={formatTags(query.tags)}
               onChange={(e) => setParam({ tags: e.target.value || undefined })}
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               placeholder="e.g. food,discount"
               type="text"
             />
@@ -220,24 +226,24 @@ export function HomePage() {
 
           <label className="block">
             <div className="text-sm text-slate-700">Valid from</div>
-            <input
+            <Input
               value={query.dateFrom ?? ""}
               onChange={(e) =>
                 setParam({ dateFrom: e.target.value || undefined })
               }
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               type="date"
             />
           </label>
 
           <label className="block">
             <div className="text-sm text-slate-700">Valid to</div>
-            <input
+            <Input
               value={query.dateTo ?? ""}
               onChange={(e) =>
                 setParam({ dateTo: e.target.value || undefined })
               }
-              className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
+              className="mt-1"
               type="date"
             />
           </label>
@@ -263,22 +269,24 @@ export function HomePage() {
               </select>
             </label>
 
-            <button
+            <Button
               type="button"
               disabled={query.page <= 1}
               onClick={() => setParam({ page: String(query.page - 1) }, false)}
-              className="rounded border border-slate-300 px-3 py-1 text-sm disabled:opacity-50"
+              variant="secondary"
+              size="sm"
             >
               Prev
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               disabled={!!data && query.page >= data.page.totalPages}
               onClick={() => setParam({ page: String(query.page + 1) }, false)}
-              className="rounded border border-slate-300 px-3 py-1 text-sm disabled:opacity-50"
+              variant="secondary"
+              size="sm"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -286,74 +294,29 @@ export function HomePage() {
       {deals.isLoading && (
         <div className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-20 animate-pulse rounded border border-slate-200 bg-slate-50"
-            />
+            <SkeletonDealCard key={i} />
           ))}
         </div>
       )}
 
       {deals.isError && (
-        <div className="rounded border border-slate-200 p-4">
-          <div className="text-sm text-red-700">
-            {deals.error.error.message}
-          </div>
-          <button
-            type="button"
-            onClick={() => deals.refetch()}
-            className="mt-3 rounded border border-slate-300 px-3 py-1 text-sm"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          message={deals.error.error.message}
+          onRetry={deals.refetch}
+        />
       )}
 
       {deals.isSuccess && data && data.items.length === 0 && (
-        <div className="rounded border border-slate-200 p-4 text-sm text-slate-700">
-          No deals found.
-        </div>
+        <EmptyState
+          title="No deals found"
+          description="Try adjusting your filters or search query."
+        />
       )}
 
       {deals.isSuccess && data && data.items.length > 0 && (
         <div className="space-y-3">
           {data.items.map((deal) => (
-            <div key={deal.id} className="rounded border border-slate-200 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="font-medium">{deal.title}</div>
-                  <div className="mt-1 text-sm text-slate-600">
-                    {deal.city} • {deal.voivodeship}
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className="font-medium">{deal.price.toFixed(2)} zł</div>
-                  <div className="text-sm text-slate-600 line-through">
-                    {deal.originalPrice.toFixed(2)} zł
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    {deal.discountPercent}% off
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                {deal.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded border border-slate-300 px-2 py-0.5 text-xs text-slate-700"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-3 text-xs text-slate-500">
-                Valid {new Date(deal.validFrom).toLocaleDateString()} –{" "}
-                {new Date(deal.validTo).toLocaleDateString()}
-              </div>
-            </div>
+            <DealCard key={deal.id} deal={deal} />
           ))}
         </div>
       )}
