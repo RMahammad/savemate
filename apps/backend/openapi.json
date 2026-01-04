@@ -1,0 +1,5974 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SaveMate API",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "ErrorEnvelope": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "VALIDATION_ERROR",
+                  "UNAUTHORIZED",
+                  "FORBIDDEN",
+                  "NOT_FOUND",
+                  "CONFLICT",
+                  "RATE_LIMITED",
+                  "INTERNAL"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "nullable": true
+              },
+              "requestId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "requestId"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RegisterInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 72
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "USER",
+              "BUSINESS"
+            ],
+            "default": "USER"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AdminDealsQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 20
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "newest"
+            ],
+            "default": "newest"
+          }
+        }
+      },
+      "AdminRejectInput": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "CategoryCreateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "CategoryUpdateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        }
+      },
+      "DealCreateInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 5000
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "originalPrice": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "categoryId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "city": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "voivodeship": {
+            "type": "string",
+            "enum": [
+              "DOLNOSLASKIE",
+              "KUJAWSKO_POMORSKIE",
+              "LUBELSKIE",
+              "LUBUSKIE",
+              "LODZKIE",
+              "MALOPOLSKIE",
+              "MAZOWIECKIE",
+              "OPOLSKIE",
+              "PODKARPACKIE",
+              "PODLASKIE",
+              "POMORSKIE",
+              "SLASKIE",
+              "SWIETOKRZYSKIE",
+              "WARMINSKO_MAZURSKIE",
+              "WIELKOPOLSKIE",
+              "ZACHODNIOPOMORSKIE"
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30
+            },
+            "maxItems": 20,
+            "default": []
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validTo": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "price",
+          "originalPrice",
+          "categoryId",
+          "city",
+          "voivodeship",
+          "validFrom",
+          "validTo"
+        ]
+      },
+      "DealUpdateInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 5000
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "originalPrice": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "categoryId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "city": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "voivodeship": {
+            "type": "string",
+            "enum": [
+              "DOLNOSLASKIE",
+              "KUJAWSKO_POMORSKIE",
+              "LUBELSKIE",
+              "LUBUSKIE",
+              "LODZKIE",
+              "MALOPOLSKIE",
+              "MAZOWIECKIE",
+              "OPOLSKIE",
+              "PODKARPACKIE",
+              "PODLASKIE",
+              "POMORSKIE",
+              "SLASKIE",
+              "SWIETOKRZYSKIE",
+              "WARMINSKO_MAZURSKIE",
+              "WIELKOPOLSKIE",
+              "ZACHODNIOPOMORSKIE"
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30
+            },
+            "maxItems": 20,
+            "default": []
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "EXPIRED"
+            ]
+          }
+        }
+      },
+      "DealsQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 20
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "voivodeship": {
+            "type": "string",
+            "enum": [
+              "DOLNOSLASKIE",
+              "KUJAWSKO_POMORSKIE",
+              "LUBELSKIE",
+              "LUBUSKIE",
+              "LODZKIE",
+              "MALOPOLSKIE",
+              "MAZOWIECKIE",
+              "OPOLSKIE",
+              "PODKARPACKIE",
+              "PODLASKIE",
+              "POMORSKIE",
+              "SLASKIE",
+              "SWIETOKRZYSKIE",
+              "WARMINSKO_MAZURSKIE",
+              "WIELKOPOLSKIE",
+              "ZACHODNIOPOMORSKIE"
+            ]
+          },
+          "minPrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxPrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "discountMin": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "q": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "dateFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dateTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "newest",
+              "biggestDiscount",
+              "lowestPrice"
+            ],
+            "default": "newest"
+          }
+        }
+      },
+      "Deal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "originalPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "discountPercent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "EXPIRED"
+            ]
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1
+          },
+          "voivodeship": {
+            "type": "string",
+            "enum": [
+              "DOLNOSLASKIE",
+              "KUJAWSKO_POMORSKIE",
+              "LUBELSKIE",
+              "LUBUSKIE",
+              "LODZKIE",
+              "MALOPOLSKIE",
+              "MAZOWIECKIE",
+              "OPOLSKIE",
+              "PODKARPACKIE",
+              "PODLASKIE",
+              "POMORSKIE",
+              "SLASKIE",
+              "SWIETOKRZYSKIE",
+              "WARMINSKO_MAZURSKIE",
+              "WIELKOPOLSKIE",
+              "ZACHODNIOPOMORSKIE"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "price",
+          "originalPrice",
+          "discountPercent",
+          "status",
+          "city",
+          "voivodeship",
+          "categoryId",
+          "tags",
+          "validFrom",
+          "validTo",
+          "createdAt"
+        ]
+      },
+      "DealIdParams": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalPages": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "DealsListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "price": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "originalPrice": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "discountPercent": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "DRAFT",
+                    "PENDING",
+                    "APPROVED",
+                    "REJECTED",
+                    "EXPIRED"
+                  ]
+                },
+                "city": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "voivodeship": {
+                  "type": "string",
+                  "enum": [
+                    "DOLNOSLASKIE",
+                    "KUJAWSKO_POMORSKIE",
+                    "LUBELSKIE",
+                    "LUBUSKIE",
+                    "LODZKIE",
+                    "MALOPOLSKIE",
+                    "MAZOWIECKIE",
+                    "OPOLSKIE",
+                    "PODKARPACKIE",
+                    "PODLASKIE",
+                    "POMORSKIE",
+                    "SLASKIE",
+                    "SWIETOKRZYSKIE",
+                    "WARMINSKO_MAZURSKIE",
+                    "WIELKOPOLSKIE",
+                    "ZACHODNIOPOMORSKIE"
+                  ]
+                },
+                "categoryId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "validFrom": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "validTo": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "price",
+                "originalPrice",
+                "discountPercent",
+                "status",
+                "city",
+                "voivodeship",
+                "categoryId",
+                "tags",
+                "validFrom",
+                "validTo",
+                "createdAt"
+              ]
+            }
+          },
+          "page": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalPages": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "page",
+              "limit",
+              "total",
+              "totalPages"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "page"
+        ]
+      },
+      "AdminPendingDeal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "originalPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "discountPercent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "EXPIRED"
+            ]
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1
+          },
+          "voivodeship": {
+            "type": "string",
+            "enum": [
+              "DOLNOSLASKIE",
+              "KUJAWSKO_POMORSKIE",
+              "LUBELSKIE",
+              "LUBUSKIE",
+              "LODZKIE",
+              "MALOPOLSKIE",
+              "MAZOWIECKIE",
+              "OPOLSKIE",
+              "PODKARPACKIE",
+              "PODLASKIE",
+              "POMORSKIE",
+              "SLASKIE",
+              "SWIETOKRZYSKIE",
+              "WARMINSKO_MAZURSKIE",
+              "WIELKOPOLSKIE",
+              "ZACHODNIOPOMORSKIE"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validTo": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "businessId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "price",
+          "originalPrice",
+          "discountPercent",
+          "status",
+          "city",
+          "voivodeship",
+          "categoryId",
+          "tags",
+          "validFrom",
+          "validTo",
+          "createdAt",
+          "businessId"
+        ]
+      },
+      "AdminPendingDealsListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "price": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "originalPrice": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "discountPercent": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "DRAFT",
+                    "PENDING",
+                    "APPROVED",
+                    "REJECTED",
+                    "EXPIRED"
+                  ]
+                },
+                "city": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "voivodeship": {
+                  "type": "string",
+                  "enum": [
+                    "DOLNOSLASKIE",
+                    "KUJAWSKO_POMORSKIE",
+                    "LUBELSKIE",
+                    "LUBUSKIE",
+                    "LODZKIE",
+                    "MALOPOLSKIE",
+                    "MAZOWIECKIE",
+                    "OPOLSKIE",
+                    "PODKARPACKIE",
+                    "PODLASKIE",
+                    "POMORSKIE",
+                    "SLASKIE",
+                    "SWIETOKRZYSKIE",
+                    "WARMINSKO_MAZURSKIE",
+                    "WIELKOPOLSKIE",
+                    "ZACHODNIOPOMORSKIE"
+                  ]
+                },
+                "categoryId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "validFrom": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "validTo": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "businessId": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "price",
+                "originalPrice",
+                "discountPercent",
+                "status",
+                "city",
+                "voivodeship",
+                "categoryId",
+                "tags",
+                "validFrom",
+                "validTo",
+                "createdAt",
+                "businessId"
+              ]
+            }
+          },
+          "page": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "totalPages": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "page",
+              "limit",
+              "total",
+              "totalPages"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "page"
+        ]
+      },
+      "CategoriesListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "slug": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80,
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "AuthAccessToken": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 72
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "ADMIN",
+                      "USER",
+                      "BUSINESS"
+                    ],
+                    "default": "USER"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "accessToken"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "accessToken"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "accessToken"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/forgot": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "token": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 10
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 72
+                  }
+                },
+                "required": [
+                  "token",
+                  "newPassword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deals": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "categoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "city",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DOLNOSLASKIE",
+                "KUJAWSKO_POMORSKIE",
+                "LUBELSKIE",
+                "LUBUSKIE",
+                "LODZKIE",
+                "MALOPOLSKIE",
+                "MAZOWIECKIE",
+                "OPOLSKIE",
+                "PODKARPACKIE",
+                "PODLASKIE",
+                "POMORSKIE",
+                "SLASKIE",
+                "SWIETOKRZYSKIE",
+                "WARMINSKO_MAZURSKIE",
+                "WIELKOPOLSKIE",
+                "ZACHODNIOPOMORSKIE"
+              ]
+            },
+            "required": false,
+            "name": "voivodeship",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "minPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "maxPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": 0,
+              "maximum": 100
+            },
+            "required": false,
+            "name": "discountMin",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "required": false,
+            "name": "tags",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "dateFrom",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "dateTo",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "biggestDiscount",
+                "lowestPrice"
+              ],
+              "default": "newest"
+            },
+            "required": false,
+            "name": "sort",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "price": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "originalPrice": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "discountPercent": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "DRAFT",
+                              "PENDING",
+                              "APPROVED",
+                              "REJECTED",
+                              "EXPIRED"
+                            ]
+                          },
+                          "city": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "voivodeship": {
+                            "type": "string",
+                            "enum": [
+                              "DOLNOSLASKIE",
+                              "KUJAWSKO_POMORSKIE",
+                              "LUBELSKIE",
+                              "LUBUSKIE",
+                              "LODZKIE",
+                              "MALOPOLSKIE",
+                              "MAZOWIECKIE",
+                              "OPOLSKIE",
+                              "PODKARPACKIE",
+                              "PODLASKIE",
+                              "POMORSKIE",
+                              "SLASKIE",
+                              "SWIETOKRZYSKIE",
+                              "WARMINSKO_MAZURSKIE",
+                              "WIELKOPOLSKIE",
+                              "ZACHODNIOPOMORSKIE"
+                            ]
+                          },
+                          "categoryId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "validFrom": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "validTo": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "price",
+                          "originalPrice",
+                          "discountPercent",
+                          "status",
+                          "city",
+                          "voivodeship",
+                          "categoryId",
+                          "tags",
+                          "validFrom",
+                          "validTo",
+                          "createdAt"
+                        ]
+                      }
+                    },
+                    "page": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "limit",
+                        "total",
+                        "totalPages"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "page"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/business/deals": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "categoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "city",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DOLNOSLASKIE",
+                "KUJAWSKO_POMORSKIE",
+                "LUBELSKIE",
+                "LUBUSKIE",
+                "LODZKIE",
+                "MALOPOLSKIE",
+                "MAZOWIECKIE",
+                "OPOLSKIE",
+                "PODKARPACKIE",
+                "PODLASKIE",
+                "POMORSKIE",
+                "SLASKIE",
+                "SWIETOKRZYSKIE",
+                "WARMINSKO_MAZURSKIE",
+                "WIELKOPOLSKIE",
+                "ZACHODNIOPOMORSKIE"
+              ]
+            },
+            "required": false,
+            "name": "voivodeship",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "minPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "maxPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": 0,
+              "maximum": 100
+            },
+            "required": false,
+            "name": "discountMin",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "required": false,
+            "name": "tags",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "dateFrom",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "dateTo",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest",
+                "biggestDiscount",
+                "lowestPrice"
+              ],
+              "default": "newest"
+            },
+            "required": false,
+            "name": "sort",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "price": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "originalPrice": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "discountPercent": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "DRAFT",
+                              "PENDING",
+                              "APPROVED",
+                              "REJECTED",
+                              "EXPIRED"
+                            ]
+                          },
+                          "city": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "voivodeship": {
+                            "type": "string",
+                            "enum": [
+                              "DOLNOSLASKIE",
+                              "KUJAWSKO_POMORSKIE",
+                              "LUBELSKIE",
+                              "LUBUSKIE",
+                              "LODZKIE",
+                              "MALOPOLSKIE",
+                              "MAZOWIECKIE",
+                              "OPOLSKIE",
+                              "PODKARPACKIE",
+                              "PODLASKIE",
+                              "POMORSKIE",
+                              "SLASKIE",
+                              "SWIETOKRZYSKIE",
+                              "WARMINSKO_MAZURSKIE",
+                              "WIELKOPOLSKIE",
+                              "ZACHODNIOPOMORSKIE"
+                            ]
+                          },
+                          "categoryId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "validFrom": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "validTo": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "price",
+                          "originalPrice",
+                          "discountPercent",
+                          "status",
+                          "city",
+                          "voivodeship",
+                          "categoryId",
+                          "tags",
+                          "validFrom",
+                          "validTo",
+                          "createdAt"
+                        ]
+                      }
+                    },
+                    "page": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "limit",
+                        "total",
+                        "totalPages"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "page"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 120
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 5000
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "originalPrice": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 80
+                  },
+                  "voivodeship": {
+                    "type": "string",
+                    "enum": [
+                      "DOLNOSLASKIE",
+                      "KUJAWSKO_POMORSKIE",
+                      "LUBELSKIE",
+                      "LUBUSKIE",
+                      "LODZKIE",
+                      "MALOPOLSKIE",
+                      "MAZOWIECKIE",
+                      "OPOLSKIE",
+                      "PODKARPACKIE",
+                      "PODLASKIE",
+                      "POMORSKIE",
+                      "SLASKIE",
+                      "SWIETOKRZYSKIE",
+                      "WARMINSKO_MAZURSKIE",
+                      "WIELKOPOLSKIE",
+                      "ZACHODNIOPOMORSKIE"
+                    ]
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 30
+                    },
+                    "maxItems": 20,
+                    "default": []
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "price",
+                  "originalPrice",
+                  "categoryId",
+                  "city",
+                  "voivodeship",
+                  "validFrom",
+                  "validTo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED",
+                        "EXPIRED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/business/deals/{id}": {
+      "patch": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 120
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 5000
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "originalPrice": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 80
+                  },
+                  "voivodeship": {
+                    "type": "string",
+                    "enum": [
+                      "DOLNOSLASKIE",
+                      "KUJAWSKO_POMORSKIE",
+                      "LUBELSKIE",
+                      "LUBUSKIE",
+                      "LODZKIE",
+                      "MALOPOLSKIE",
+                      "MAZOWIECKIE",
+                      "OPOLSKIE",
+                      "PODKARPACKIE",
+                      "PODLASKIE",
+                      "POMORSKIE",
+                      "SLASKIE",
+                      "SWIETOKRZYSKIE",
+                      "WARMINSKO_MAZURSKIE",
+                      "WIELKOPOLSKIE",
+                      "ZACHODNIOPOMORSKIE"
+                    ]
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 30
+                    },
+                    "maxItems": 20,
+                    "default": []
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "DRAFT",
+                      "PENDING",
+                      "APPROVED",
+                      "REJECTED",
+                      "EXPIRED"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED",
+                        "EXPIRED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/deals/pending": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "newest"
+              ],
+              "default": "newest"
+            },
+            "required": false,
+            "name": "sort",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "price": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "originalPrice": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "discountPercent": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "DRAFT",
+                              "PENDING",
+                              "APPROVED",
+                              "REJECTED",
+                              "EXPIRED"
+                            ]
+                          },
+                          "city": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "voivodeship": {
+                            "type": "string",
+                            "enum": [
+                              "DOLNOSLASKIE",
+                              "KUJAWSKO_POMORSKIE",
+                              "LUBELSKIE",
+                              "LUBUSKIE",
+                              "LODZKIE",
+                              "MALOPOLSKIE",
+                              "MAZOWIECKIE",
+                              "OPOLSKIE",
+                              "PODKARPACKIE",
+                              "PODLASKIE",
+                              "POMORSKIE",
+                              "SLASKIE",
+                              "SWIETOKRZYSKIE",
+                              "WARMINSKO_MAZURSKIE",
+                              "WIELKOPOLSKIE",
+                              "ZACHODNIOPOMORSKIE"
+                            ]
+                          },
+                          "categoryId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "validFrom": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "validTo": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "businessId": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "price",
+                          "originalPrice",
+                          "discountPercent",
+                          "status",
+                          "city",
+                          "voivodeship",
+                          "categoryId",
+                          "tags",
+                          "validFrom",
+                          "validTo",
+                          "createdAt",
+                          "businessId"
+                        ]
+                      }
+                    },
+                    "page": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "limit",
+                        "total",
+                        "totalPages"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "page"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/deals/{id}/approve": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED",
+                        "EXPIRED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/deals/{id}/reject": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "DRAFT",
+                        "APPROVED",
+                        "REJECTED",
+                        "EXPIRED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          "slug": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80,
+                            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "slug"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "slug": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "slug"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "slug": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "slug"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories/{id}": {
+      "patch": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "slug": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "slug": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "slug"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "VALIDATION_ERROR",
+                            "UNAUTHORIZED",
+                            "FORBIDDEN",
+                            "NOT_FOUND",
+                            "CONFLICT",
+                            "RATE_LIMITED",
+                            "INTERNAL"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "nullable": true
+                        },
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,12 +2,22 @@
   "name": "savemate",
   "private": true,
   "packageManager": "pnpm@9.0.0",
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "openapi:generate": "pnpm -C apps/backend openapi:generate",
+    "openapi:types": "pnpm -C packages/api-client openapi:types",
+    "contract:sync": "pnpm openapi:generate && pnpm openapi:types",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
   }
 }

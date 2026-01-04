@@ -1,0 +1,23 @@
+{
+  "name": "@savemate/shared-validation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint eslint.config.cjs",
+    "test": "node -e \"process.exit(0)\""
+  },
+  "devDependencies": {
+    "@savemate/config": "workspace:*",
+    "@types/node": "^20.11.0"
+  },
+  "dependencies": {
+    "zod": "^3.24.1",
+    "@asteasolutions/zod-to-openapi": "^7.3.0"
+  }
+}

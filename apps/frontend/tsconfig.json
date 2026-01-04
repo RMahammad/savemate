@@ -1,0 +1,4 @@
+{
+  "extends": "@savemate/config/tsconfig/react",
+  "include": ["src"]
+}

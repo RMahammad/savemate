@@ -1,6 +1,13 @@
-module.exports = {
-  extends: [require.resolve("./base.cjs")],
-  env: {
-    browser: true,
+module.exports = [
+  ...require("./base.cjs"),
+  {
+    languageOptions: {
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        navigator: "readonly",
+        console: "readonly",
+      },
+    },
   },
-};
+];

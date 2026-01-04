@@ -1,14 +1,18 @@
-module.exports = {
-  root: true,
-  env: {
-    es2022: true,
+/**
+ * Minimal ESLint v9 flat config (no TS parsing yet).
+ * Keep this intentionally small for Milestone 1.
+ */
+module.exports = [
+  {
+    ignores: ["**/dist/**", "**/node_modules/**"],
   },
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+  {
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+    },
+    rules: {
+      "no-console": "off",
+    },
   },
-  ignorePatterns: ["dist", "node_modules"],
-  rules: {
-    "no-console": "off",
-  },
-};
+];

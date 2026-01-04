@@ -1,0 +1,41 @@
+{
+  "name": "@savemate/backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint eslint.config.cjs",
+    "dev": "tsx src/server.ts",
+    "build": "tsc -p tsconfig.json --noEmit",
+    "openapi:generate": "tsx src/openapi/generate.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "@savemate/config": "workspace:*",
+    "@savemate/shared-validation": "workspace:*",
+    "@asteasolutions/zod-to-openapi": "^7.3.0",
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.0.0",
+    "prisma": "^5.20.0",
+    "tsx": "^4.19.2"
+  }
+}
