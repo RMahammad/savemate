@@ -1,7 +1,12 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 
 import type { Role } from "@savemate/shared-validation";
-import { setAccessToken as setAxiosAccessToken } from "../api/axios";
+import { logout as apiLogout } from "@/api/auth";
+import {
+  getAccessToken,
+  setAccessToken as setStoredAccessToken,
+  subscribeAccessToken,
+} from "@/features/auth/authStore";
 import { tryDecodeJwtUser, type JwtUser } from "./jwt";
 
 type AuthState = {
@@ -14,42 +19,32 @@ type AuthState = {
 
 export const AuthContext = createContext<AuthState | null>(null);
 
-const STORAGE_KEY = "savemate.accessToken";
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [accessToken, setAccessTokenState] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
-    }
-  });
+  const [accessToken, setAccessTokenState] = useState<string | null>(() =>
+    getAccessToken()
+  );
 
   const user = useMemo(() => tryDecodeJwtUser(accessToken), [accessToken]);
 
   function setAccessToken(token: string | null) {
-    setAccessTokenState(token);
-    setAxiosAccessToken(token);
-
-    try {
-      if (token) localStorage.setItem(STORAGE_KEY, token);
-      else localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // ignore
-    }
+    setStoredAccessToken(token);
   }
 
   function logout() {
-    setAccessToken(null);
+    void apiLogout().catch(() => {
+      // ignore
+    });
+    setStoredAccessToken(null);
   }
 
   function isRole(...roles: Role[]) {
     return !!user && roles.includes(user.role);
   }
 
-  useEffect(() => {
-    setAxiosAccessToken(accessToken);
-  }, [accessToken]);
+  useEffect(
+    () => subscribeAccessToken(() => setAccessTokenState(getAccessToken())),
+    []
+  );
 
   const value: AuthState = {
     accessToken,
