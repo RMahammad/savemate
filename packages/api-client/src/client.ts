@@ -5,17 +5,17 @@ type HttpMethod = "get" | "post" | "patch" | "delete";
 
 type PathKey = keyof paths;
 
+type MethodForPath<P extends PathKey> = Extract<keyof paths[P], HttpMethod>;
+
 type JsonBodyOf<T> = T extends { content: { "application/json": infer B } }
   ? B
   : never;
 
 type RequestFor<
   P extends PathKey,
-  M extends keyof paths[P],
-> = paths[P][M] extends {
-  requestBody: infer RB;
-}
-  ? JsonBodyOf<RB>
+  M extends MethodForPath<P>,
+> = paths[P][M] extends { requestBody?: infer RB }
+  ? JsonBodyOf<NonNullable<RB>>
   : never;
 
 type JsonResponseOf<T> = T extends { content: { "application/json": infer R } }
@@ -42,7 +42,7 @@ type ResponseFor<P extends PathKey, M extends keyof paths[P]> =
 
 export function createApiClient(axiosInstance: AxiosInstance) {
   return {
-    async request<P extends PathKey, M extends HttpMethod>(
+    async request<P extends PathKey, M extends MethodForPath<P>>(
       method: M,
       path: P,
       options?: {

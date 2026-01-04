@@ -1,12 +1,19 @@
+import { useMemo } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import { queryClient } from "./api/reactQuery";
+import { AuthProvider } from "./auth/AuthProvider";
+import { routes } from "./routes/router";
+
 export function App() {
+  const router = useMemo(() => createBrowserRouter(routes), []);
+
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <h1 className="text-2xl font-semibold">SaveMate</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Frontend scaffolded with Vite + React + TypeScript + Tailwind.
-        </p>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
