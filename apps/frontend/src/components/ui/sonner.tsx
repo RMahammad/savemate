@@ -1,4 +1,6 @@
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
+
+export { toast };
 
 export function AppToaster() {
   return (

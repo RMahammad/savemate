@@ -1,16 +1,21 @@
 import { DealCard } from "@/components/common/DealCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { MotionFade } from "@/components/common/Motion";
 import { Pagination } from "@/components/common/Pagination";
 import { SkeletonDealCard } from "@/components/common/SkeletonDealCard";
 import { FilterDrawer } from "@/components/deals/FilterDrawer";
 import { FilterSidebar } from "@/components/deals/FilterSidebar";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/components/ui/sonner";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
 import { useDealsQuery } from "@/features/deals/hooks/useDealsQuery";
+import { useState } from "react";
 
 export function DealsPage() {
   const { query, searchKey, setParam, clearAll } = useDealsQuery();
+  const [isClearOpen, setIsClearOpen] = useState(false);
 
   const deals = useDealsFeed(searchKey, {
     page: query.page,
@@ -36,7 +41,19 @@ export function DealsPage() {
   const data = deals.data;
 
   return (
-    <div className="space-y-4">
+    <MotionFade className="space-y-4">
+      <ConfirmDialog
+        open={isClearOpen}
+        onOpenChange={setIsClearOpen}
+        title="Clear all filters?"
+        description="This will reset your filters and sorting to defaults."
+        confirmText="Clear"
+        onConfirm={() => {
+          clearAll();
+          toast.success("Filters cleared");
+        }}
+      />
+
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold">Deals</h1>
@@ -88,7 +105,7 @@ export function DealsPage() {
               title="No deals found"
               description="Try adjusting your filters or clearing them."
               actionLabel="Clear filters"
-              onAction={clearAll}
+              onAction={() => setIsClearOpen(true)}
             />
           ) : null}
 
@@ -101,6 +118,6 @@ export function DealsPage() {
           ) : null}
         </div>
       </div>
-    </div>
+    </MotionFade>
   );
 }
