@@ -21,10 +21,12 @@ export function FilterSidebar({
   query,
   onChange,
   onClear,
+  categories,
 }: {
   query: DealsQuery;
   onChange: (next: Record<string, string | undefined>) => void;
   onClear: () => void;
+  categories: Array<{ id: string; name: string }>;
 }) {
   return (
     <div className="space-y-4">
@@ -54,6 +56,24 @@ export function FilterSidebar({
             onChange={(e) => onChange({ city: e.target.value || undefined })}
             placeholder="e.g. Warsaw"
           />
+        </label>
+
+        <label className="block">
+          <div className="text-sm text-slate-700">Category</div>
+          <select
+            value={query.categoryId ?? ""}
+            onChange={(e) =>
+              onChange({ categoryId: e.target.value || undefined })
+            }
+            className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          >
+            <option value="">Any</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="block">

@@ -15,6 +15,7 @@ export type DealsFeedQuery = {
   limit: number;
   q?: string;
   city?: string;
+  categoryId?: string;
   voivodeship?: z.infer<typeof VoivodeshipSchema>;
   minPrice?: number;
   maxPrice?: number;
@@ -31,6 +32,7 @@ function toApiParams(query: DealsFeedQuery) {
     limit: query.limit,
     q: query.q || undefined,
     city: query.city || undefined,
+    categoryId: query.categoryId || undefined,
     voivodeship: query.voivodeship || undefined,
     minPrice: query.minPrice ?? undefined,
     maxPrice: query.maxPrice ?? undefined,

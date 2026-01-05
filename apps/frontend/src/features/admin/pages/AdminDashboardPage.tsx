@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { useLocation } from "react-router-dom";
 
 import {
   AdminDealsQuerySchema,
@@ -100,6 +101,7 @@ type Category = { id: string; name: string; slug: string };
 
 export function AdminDashboardPage() {
   const queryClient = useQueryClient();
+  const location = useLocation();
   const [pendingPage, setPendingPage] = useState(1);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [confirmDeleteCategoryId, setConfirmDeleteCategoryId] = useState<
@@ -233,6 +235,13 @@ export function AdminDashboardPage() {
     for (const c of categories) m.set(c.id, c.name);
     return m;
   }, [categories]);
+
+  useEffect(() => {
+    if (location.hash !== "#categories") return;
+    const el = document.getElementById("categories");
+    if (!el) return;
+    el.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [location.hash]);
 
   return (
     <div className="space-y-6">
@@ -464,7 +473,7 @@ export function AdminDashboardPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="space-y-3">
+      <div id="categories" className="space-y-3">
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="text-sm font-semibold text-slate-900">

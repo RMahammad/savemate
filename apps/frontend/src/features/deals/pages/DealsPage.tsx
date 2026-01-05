@@ -9,6 +9,8 @@ import { FilterDrawer } from "@/components/deals/FilterDrawer";
 import { FilterSidebar } from "@/components/deals/FilterSidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/sonner";
+import { useQuery } from "@tanstack/react-query";
+import { listCategories } from "@/api/categories";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
 import { useDealsQuery } from "@/features/deals/hooks/useDealsQuery";
 import { formatDealsSortLabel } from "@/features/deals/sort";
@@ -19,6 +21,16 @@ import { useState } from "react";
 export function DealsPage() {
   const { query, searchKey, setParam, clearAll } = useDealsQuery();
   const [isClearOpen, setIsClearOpen] = useState(false);
+
+  const categoriesQuery = useQuery({
+    queryKey: ["categories"],
+    queryFn: listCategories,
+  });
+
+  const categories = (categoriesQuery.data?.items ?? []) as Array<{
+    id: string;
+    name: string;
+  }>;
 
   const activeChips: Array<{
     key: string;
@@ -119,6 +131,7 @@ export function DealsPage() {
     limit: query.limit,
     q: query.q,
     city: query.city,
+    categoryId: query.categoryId,
     voivodeship: query.voivodeship,
     minPrice: query.minPrice,
     maxPrice: query.maxPrice,
@@ -159,7 +172,12 @@ export function DealsPage() {
           </div>
         </div>
 
-        <FilterDrawer query={query} onChange={setParam} onClear={clearAll} />
+        <FilterDrawer
+          query={query}
+          onChange={setParam}
+          onClear={clearAll}
+          categories={categories}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[320px_1fr]">
@@ -170,6 +188,7 @@ export function DealsPage() {
                 query={query}
                 onChange={setParam}
                 onClear={clearAll}
+                categories={categories}
               />
             </CardContent>
           </Card>

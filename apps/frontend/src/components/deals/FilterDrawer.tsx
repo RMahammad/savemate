@@ -16,10 +16,12 @@ export function FilterDrawer({
   query,
   onChange,
   onClear,
+  categories,
 }: {
   query: DealsQuery;
   onChange: (next: Record<string, string | undefined>) => void;
   onClear: () => void;
+  categories: Array<{ id: string; name: string }>;
 }) {
   return (
     <div className="md:hidden">
@@ -35,7 +37,12 @@ export function FilterDrawer({
           <SheetHeader>
             <SheetTitle>Filters</SheetTitle>
           </SheetHeader>
-          <FilterSidebar query={query} onChange={onChange} onClear={onClear} />
+          <FilterSidebar
+            query={query}
+            onChange={onChange}
+            onClear={onClear}
+            categories={categories}
+          />
         </SheetContent>
       </Sheet>
     </div>
