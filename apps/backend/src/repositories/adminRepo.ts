@@ -9,6 +9,9 @@ export async function listPendingDeals(input: { skip: number; take: number }) {
     select: {
       id: true,
       title: true,
+      description: true,
+      usageTerms: true,
+      imageUrl: true,
       price: true,
       originalPrice: true,
       discountPercent: true,

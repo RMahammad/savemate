@@ -106,6 +106,9 @@ export async function findApprovedDeals(query: DealsQuery) {
     select: {
       id: true,
       title: true,
+      description: true,
+      usageTerms: true,
+      imageUrl: true,
       price: true,
       originalPrice: true,
       discountPercent: true,
@@ -127,6 +130,9 @@ export async function findApprovedDealById(id: string) {
     select: {
       id: true,
       title: true,
+      description: true,
+      usageTerms: true,
+      imageUrl: true,
       price: true,
       originalPrice: true,
       discountPercent: true,

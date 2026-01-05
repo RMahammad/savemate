@@ -95,6 +95,8 @@ export async function findDealById(id: string) {
       categoryId: true,
       title: true,
       description: true,
+      usageTerms: true,
+      imageUrl: true,
       price: true,
       originalPrice: true,
       discountPercent: true,
@@ -131,6 +133,9 @@ export async function listBusinessDeals(businessId: string, query: DealsQuery) {
     select: {
       id: true,
       title: true,
+      description: true,
+      usageTerms: true,
+      imageUrl: true,
       price: true,
       originalPrice: true,
       discountPercent: true,
@@ -151,6 +156,8 @@ export async function createBusinessDeal(
   data: {
     title: string;
     description: string;
+    usageTerms?: string;
+    imageUrl?: string;
     price: number;
     originalPrice: number;
     categoryId: string;
@@ -171,6 +178,8 @@ export async function createBusinessDeal(
       categoryId: data.categoryId,
       title: data.title,
       description: data.description,
+      ...(data.usageTerms !== undefined ? { usageTerms: data.usageTerms } : {}),
+      ...(data.imageUrl !== undefined ? { imageUrl: data.imageUrl } : {}),
       price: data.price,
       originalPrice: data.originalPrice,
       discountPercent,
@@ -190,6 +199,8 @@ export async function updateBusinessDeal(
   data: Partial<{
     title: string;
     description: string;
+    usageTerms: string | null;
+    imageUrl: string | null;
     price: number;
     originalPrice: number;
     categoryId: string;
@@ -203,6 +214,8 @@ export async function updateBusinessDeal(
   const next: Prisma.DealUpdateInput = {
     ...("title" in data ? { title: data.title } : {}),
     ...("description" in data ? { description: data.description } : {}),
+    ...("usageTerms" in data ? { usageTerms: data.usageTerms } : {}),
+    ...("imageUrl" in data ? { imageUrl: data.imageUrl } : {}),
     ...("categoryId" in data ? { categoryId: data.categoryId } : {}),
     ...("city" in data ? { city: data.city } : {}),
     ...("voivodeship" in data ? { voivodeship: data.voivodeship } : {}),

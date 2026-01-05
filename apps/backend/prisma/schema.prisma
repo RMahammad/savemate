@@ -73,6 +73,8 @@ model Deal {
 
     title           String
     description     String
+    usageTerms      String?
+    imageUrl        String?
     price           Float
     originalPrice   Float
     discountPercent Int

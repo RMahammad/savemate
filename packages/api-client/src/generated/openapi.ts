@@ -590,6 +590,10 @@ export interface paths {
                             items: {
                                 id: string;
                                 title: string;
+                                description: string;
+                                usageTerms?: string | null;
+                                /** Format: uri */
+                                imageUrl?: string | null;
                                 price: number;
                                 originalPrice: number;
                                 discountPercent: number;
@@ -687,6 +691,10 @@ export interface paths {
                         "application/json": {
                             id: string;
                             title: string;
+                            description: string;
+                            usageTerms?: string | null;
+                            /** Format: uri */
+                            imageUrl?: string | null;
                             price: number;
                             originalPrice: number;
                             discountPercent: number;
@@ -807,6 +815,10 @@ export interface paths {
                             items: {
                                 id: string;
                                 title: string;
+                                description: string;
+                                usageTerms?: string | null;
+                                /** Format: uri */
+                                imageUrl?: string | null;
                                 price: number;
                                 originalPrice: number;
                                 discountPercent: number;
@@ -916,6 +928,9 @@ export interface paths {
                     "application/json": {
                         title: string;
                         description: string;
+                        usageTerms?: string;
+                        /** Format: uri */
+                        imageUrl?: string;
                         price: number;
                         originalPrice: number;
                         categoryId: string;
@@ -1156,6 +1171,9 @@ export interface paths {
                     "application/json": {
                         title?: string;
                         description?: string;
+                        usageTerms?: string;
+                        /** Format: uri */
+                        imageUrl?: string;
                         price?: number;
                         originalPrice?: number;
                         categoryId?: string;
@@ -1306,6 +1324,10 @@ export interface paths {
                             items: {
                                 id: string;
                                 title: string;
+                                description: string;
+                                usageTerms?: string | null;
+                                /** Format: uri */
+                                imageUrl?: string | null;
                                 price: number;
                                 originalPrice: number;
                                 discountPercent: number;
@@ -2287,6 +2309,9 @@ export interface components {
         DealCreateInput: {
             title: string;
             description: string;
+            usageTerms?: string;
+            /** Format: uri */
+            imageUrl?: string;
             price: number;
             originalPrice: number;
             categoryId: string;
@@ -2303,6 +2328,9 @@ export interface components {
         DealUpdateInput: {
             title?: string;
             description?: string;
+            usageTerms?: string;
+            /** Format: uri */
+            imageUrl?: string;
             price?: number;
             originalPrice?: number;
             categoryId?: string;
@@ -2345,6 +2373,10 @@ export interface components {
         Deal: {
             id: string;
             title: string;
+            description: string;
+            usageTerms?: string | null;
+            /** Format: uri */
+            imageUrl?: string | null;
             price: number;
             originalPrice: number;
             discountPercent: number;
@@ -2375,6 +2407,10 @@ export interface components {
             items: {
                 id: string;
                 title: string;
+                description: string;
+                usageTerms?: string | null;
+                /** Format: uri */
+                imageUrl?: string | null;
                 price: number;
                 originalPrice: number;
                 discountPercent: number;
@@ -2402,6 +2438,10 @@ export interface components {
         AdminPendingDeal: {
             id: string;
             title: string;
+            description: string;
+            usageTerms?: string | null;
+            /** Format: uri */
+            imageUrl?: string | null;
             price: number;
             originalPrice: number;
             discountPercent: number;
@@ -2424,6 +2464,10 @@ export interface components {
             items: {
                 id: string;
                 title: string;
+                description: string;
+                usageTerms?: string | null;
+                /** Format: uri */
+                imageUrl?: string | null;
                 price: number;
                 originalPrice: number;
                 discountPercent: number;

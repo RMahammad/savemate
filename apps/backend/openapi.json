@@ -212,6 +212,16 @@
             "minLength": 10,
             "maxLength": 5000
           },
+          "usageTerms": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 2000,
+            "format": "uri"
+          },
           "price": {
             "type": "number",
             "minimum": 0,
@@ -295,6 +305,16 @@
             "type": "string",
             "minLength": 10,
             "maxLength": 5000
+          },
+          "usageTerms": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "imageUrl": {
+            "type": "string",
+            "maxLength": 2000,
+            "format": "uri"
           },
           "price": {
             "type": "number",
@@ -462,11 +482,27 @@
         "properties": {
           "id": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "title": {
             "type": "string",
             "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "usageTerms": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "format": "uri"
           },
           "price": {
             "type": "number",
@@ -542,6 +578,7 @@
         "required": [
           "id",
           "title",
+          "description",
           "price",
           "originalPrice",
           "discountPercent",
@@ -560,7 +597,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^[0-9a-fA-F]{24}$"
           }
         },
         "required": [
@@ -604,11 +641,27 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "minLength": 1
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "title": {
                   "type": "string",
                   "minLength": 1
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "usageTerms": {
+                  "type": "string",
+                  "nullable": true,
+                  "minLength": 1,
+                  "maxLength": 5000
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "nullable": true,
+                  "maxLength": 2000,
+                  "format": "uri"
                 },
                 "price": {
                   "type": "number",
@@ -684,6 +737,7 @@
               "required": [
                 "id",
                 "title",
+                "description",
                 "price",
                 "originalPrice",
                 "discountPercent",
@@ -736,11 +790,27 @@
         "properties": {
           "id": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "title": {
             "type": "string",
             "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "usageTerms": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "format": "uri"
           },
           "price": {
             "type": "number",
@@ -820,6 +890,7 @@
         "required": [
           "id",
           "title",
+          "description",
           "price",
           "originalPrice",
           "discountPercent",
@@ -844,11 +915,27 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "minLength": 1
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "title": {
                   "type": "string",
                   "minLength": 1
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "usageTerms": {
+                  "type": "string",
+                  "nullable": true,
+                  "minLength": 1,
+                  "maxLength": 5000
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "nullable": true,
+                  "maxLength": 2000,
+                  "format": "uri"
                 },
                 "price": {
                   "type": "number",
@@ -928,6 +1015,7 @@
               "required": [
                 "id",
                 "title",
+                "description",
                 "price",
                 "originalPrice",
                 "discountPercent",
@@ -2166,11 +2254,27 @@
                         "properties": {
                           "id": {
                             "type": "string",
-                            "minLength": 1
+                            "pattern": "^[0-9a-fA-F]{24}$"
                           },
                           "title": {
                             "type": "string",
                             "minLength": 1
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "usageTerms": {
+                            "type": "string",
+                            "nullable": true,
+                            "minLength": 1,
+                            "maxLength": 5000
+                          },
+                          "imageUrl": {
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 2000,
+                            "format": "uri"
                           },
                           "price": {
                             "type": "number",
@@ -2246,6 +2350,7 @@
                         "required": [
                           "id",
                           "title",
+                          "description",
                           "price",
                           "originalPrice",
                           "discountPercent",
@@ -2397,7 +2502,7 @@
           {
             "schema": {
               "type": "string",
-              "minLength": 1
+              "pattern": "^[0-9a-fA-F]{24}$"
             },
             "required": true,
             "name": "id",
@@ -2414,11 +2519,27 @@
                   "properties": {
                     "id": {
                       "type": "string",
-                      "minLength": 1
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "title": {
                       "type": "string",
                       "minLength": 1
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "usageTerms": {
+                      "type": "string",
+                      "nullable": true,
+                      "minLength": 1,
+                      "maxLength": 5000
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 2000,
+                      "format": "uri"
                     },
                     "price": {
                       "type": "number",
@@ -2494,6 +2615,7 @@
                   "required": [
                     "id",
                     "title",
+                    "description",
                     "price",
                     "originalPrice",
                     "discountPercent",
@@ -2826,11 +2948,27 @@
                         "properties": {
                           "id": {
                             "type": "string",
-                            "minLength": 1
+                            "pattern": "^[0-9a-fA-F]{24}$"
                           },
                           "title": {
                             "type": "string",
                             "minLength": 1
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "usageTerms": {
+                            "type": "string",
+                            "nullable": true,
+                            "minLength": 1,
+                            "maxLength": 5000
+                          },
+                          "imageUrl": {
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 2000,
+                            "format": "uri"
                           },
                           "price": {
                             "type": "number",
@@ -2906,6 +3044,7 @@
                         "required": [
                           "id",
                           "title",
+                          "description",
                           "price",
                           "originalPrice",
                           "discountPercent",
@@ -3163,6 +3302,16 @@
                     "type": "string",
                     "minLength": 10,
                     "maxLength": 5000
+                  },
+                  "usageTerms": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "format": "uri"
                   },
                   "price": {
                     "type": "number",
@@ -3467,7 +3616,7 @@
           {
             "schema": {
               "type": "string",
-              "minLength": 1
+              "pattern": "^[0-9a-fA-F]{24}$"
             },
             "required": true,
             "name": "id",
@@ -3489,6 +3638,16 @@
                     "type": "string",
                     "minLength": 10,
                     "maxLength": 5000
+                  },
+                  "usageTerms": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "format": "uri"
                   },
                   "price": {
                     "type": "number",
@@ -3836,7 +3995,7 @@
           {
             "schema": {
               "type": "string",
-              "minLength": 1
+              "pattern": "^[0-9a-fA-F]{24}$"
             },
             "required": true,
             "name": "id",
@@ -4153,11 +4312,27 @@
                         "properties": {
                           "id": {
                             "type": "string",
-                            "minLength": 1
+                            "pattern": "^[0-9a-fA-F]{24}$"
                           },
                           "title": {
                             "type": "string",
                             "minLength": 1
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "usageTerms": {
+                            "type": "string",
+                            "nullable": true,
+                            "minLength": 1,
+                            "maxLength": 5000
+                          },
+                          "imageUrl": {
+                            "type": "string",
+                            "nullable": true,
+                            "maxLength": 2000,
+                            "format": "uri"
                           },
                           "price": {
                             "type": "number",
@@ -4237,6 +4412,7 @@
                         "required": [
                           "id",
                           "title",
+                          "description",
                           "price",
                           "originalPrice",
                           "discountPercent",
@@ -4486,7 +4662,7 @@
           {
             "schema": {
               "type": "string",
-              "minLength": 1
+              "pattern": "^[0-9a-fA-F]{24}$"
             },
             "required": true,
             "name": "id",
@@ -4814,7 +4990,7 @@
           {
             "schema": {
               "type": "string",
-              "minLength": 1
+              "pattern": "^[0-9a-fA-F]{24}$"
             },
             "required": true,
             "name": "id",

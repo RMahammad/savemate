@@ -50,6 +50,8 @@ export async function createMyDeal(businessId: string, input: DealCreateInput) {
   const created = await createBusinessDeal(businessId, {
     title: input.title,
     description: input.description,
+    usageTerms: input.usageTerms,
+    imageUrl: input.imageUrl,
     price: input.price,
     originalPrice: input.originalPrice,
     categoryId: input.categoryId,

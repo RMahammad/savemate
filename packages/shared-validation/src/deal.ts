@@ -30,6 +30,8 @@ export const DealStatusSchema = z.enum([
 const DealCreateBaseSchema = z.object({
   title: z.string().min(3).max(120),
   description: z.string().min(10).max(5000),
+  usageTerms: z.string().min(1).max(5000).optional(),
+  imageUrl: z.string().url().max(2000).optional(),
   price: z.number().positive(),
   originalPrice: z.number().positive(),
   categoryId: z.string().min(1),
@@ -107,6 +109,9 @@ export type DealIdParams = z.infer<typeof DealIdParamsSchema>;
 export const DealSchema = z.object({
   id: DealIdSchema,
   title: z.string().min(1),
+  description: z.string().min(1),
+  usageTerms: z.string().min(1).max(5000).nullable().optional(),
+  imageUrl: z.string().url().max(2000).nullable().optional(),
   price: z.number().nonnegative(),
   originalPrice: z.number().nonnegative(),
   discountPercent: z.number().int().min(0).max(100),

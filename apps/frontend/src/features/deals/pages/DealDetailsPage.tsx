@@ -16,7 +16,16 @@ import { getDeal } from "@/api/deals";
 import { defaultFaqItems } from "@/content/faq";
 import type { DealsFeedResponse } from "@/features/deals/useDealsFeed";
 import { formatVoivodeshipLabel } from "@/lib/poland";
-import { Calendar, Hash, Layers, MapPin, Tag, Wallet } from "lucide-react";
+import {
+  Calendar,
+  FileText,
+  Hash,
+  Layers,
+  MapPin,
+  ScrollText,
+  Tag,
+  Wallet,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type DealFromFeed = DealsFeedResponse["items"][number];
@@ -139,6 +148,17 @@ export function DealDetailsPage() {
         </div>
 
         <Card className="overflow-hidden">
+          {deal.imageUrl ? (
+            <div className="bg-slate-100">
+              <img
+                src={deal.imageUrl}
+                alt={deal.title}
+                className="h-56 w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          ) : null}
+
           <div className="border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white">
             <CardHeader className="space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-4">
@@ -172,6 +192,44 @@ export function DealDetailsPage() {
           <CardContent className="pt-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
               <div className="space-y-6">
+                <Card>
+                  <CardHeader className="py-4">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                      <div className="rounded-lg border border-sky-200 bg-sky-50 p-1.5 text-sky-700">
+                        <FileText className="h-4 w-4" />
+                      </div>
+                      Description
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+                      {deal.description}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="py-4">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                      <div className="rounded-lg border border-violet-200 bg-violet-50 p-1.5 text-violet-700">
+                        <ScrollText className="h-4 w-4" />
+                      </div>
+                      Usage terms
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    {deal.usageTerms ? (
+                      <div className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
+                        {deal.usageTerms}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-slate-500">
+                        No usage terms provided.
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
                 <Card>
                   <CardHeader className="py-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
