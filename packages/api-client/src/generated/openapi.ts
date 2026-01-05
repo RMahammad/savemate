@@ -660,6 +660,113 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            title: string;
+                            price: number;
+                            originalPrice: number;
+                            discountPercent: number;
+                            /** @enum {string} */
+                            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+                            city: string;
+                            /** @enum {string} */
+                            voivodeship: "DOLNOSLASKIE" | "KUJAWSKO_POMORSKIE" | "LUBELSKIE" | "LUBUSKIE" | "LODZKIE" | "MALOPOLSKIE" | "MAZOWIECKIE" | "OPOLSKIE" | "PODKARPACKIE" | "PODLASKIE" | "POMORSKIE" | "SLASKIE" | "SWIETOKRZYSKIE" | "WARMINSKO_MAZURSKIE" | "WIELKOPOLSKIE" | "ZACHODNIOPOMORSKIE";
+                            categoryId: string;
+                            tags: string[];
+                            /** Format: date-time */
+                            validFrom: string;
+                            /** Format: date-time */
+                            validTo: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description Error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/business/deals": {
         parameters: {
             query?: never;

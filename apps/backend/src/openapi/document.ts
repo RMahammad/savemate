@@ -267,6 +267,27 @@ function buildRegistry(): OpenAPIRegistry {
     },
   });
 
+  registry.registerPath({
+    method: "get",
+    path: "/deals/{id}",
+    request: {
+      params: DealIdParamsSchema,
+    },
+    responses: {
+      200: {
+        description: "OK",
+        content: {
+          "application/json": {
+            schema: DealSchema,
+          },
+        },
+      },
+      400: ErrorResponse,
+      404: ErrorResponse,
+      500: ErrorResponse,
+    },
+  });
+
   // Business deals
   registry.registerPath({
     method: "get",

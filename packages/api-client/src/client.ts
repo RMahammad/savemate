@@ -46,13 +46,21 @@ export function createApiClient(axiosInstance: AxiosInstance) {
       method: M,
       path: P,
       options?: {
+        pathParams?: Record<string, string | number>;
         params?: Record<string, any>;
         body?: RequestFor<P, M>;
       }
     ): Promise<ResponseFor<P, M>> {
+      let url = path as string;
+      const pathParams = options?.pathParams;
+      if (pathParams) {
+        for (const [key, value] of Object.entries(pathParams)) {
+          url = url.replaceAll(`{${key}}`, encodeURIComponent(String(value)));
+        }
+      }
       const res = await axiosInstance.request({
         method,
-        url: path as string,
+        url,
         params: options?.params,
         data: options?.body,
       });

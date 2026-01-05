@@ -1,6 +1,8 @@
 import type { DealsQuery } from "@savemate/shared-validation";
+import { AppError } from "../middlewares/AppError.js";
 import {
   countApprovedDeals,
+  findApprovedDealById,
   findApprovedDeals,
 } from "../repositories/dealsRepo.js";
 
@@ -21,4 +23,12 @@ export async function listDeals(query: DealsQuery) {
       totalPages,
     },
   };
+}
+
+export async function getDealById(id: string) {
+  const deal = await findApprovedDealById(id);
+  if (!deal) {
+    throw new AppError("NOT_FOUND", "Deal not found", 404);
+  }
+  return deal;
 }

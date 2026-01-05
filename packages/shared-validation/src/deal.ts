@@ -95,7 +95,9 @@ export type DealsQuery = z.infer<typeof DealsQuerySchema>;
 export type DealCreateInput = z.infer<typeof DealCreateSchema>;
 export type DealUpdateInput = z.infer<typeof DealUpdateSchema>;
 
-export const DealIdSchema = z.string().min(1);
+export const DealIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, "Invalid deal id");
 
 export const DealIdParamsSchema = z.object({ id: DealIdSchema });
 

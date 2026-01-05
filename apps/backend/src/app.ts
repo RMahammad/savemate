@@ -63,6 +63,19 @@ export function createApp() {
   app.use("/business/deals", businessDealsRouter);
   app.use("/admin", adminRouter);
 
+  // Consistent JSON 404 (prevents default HTML "Cannot GET ..." responses)
+  app.use((req, res) => {
+    const requestId = (req as any).requestId ?? "unknown";
+    return res.status(404).json({
+      error: {
+        code: "NOT_FOUND",
+        message: "Route not found",
+        details: { path: req.path },
+        requestId,
+      },
+    });
+  });
+
   app.use(errorMiddleware);
 
   return app;

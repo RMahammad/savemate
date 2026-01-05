@@ -120,3 +120,24 @@ export async function findApprovedDeals(query: DealsQuery) {
     },
   });
 }
+
+export async function findApprovedDealById(id: string) {
+  return prisma.deal.findFirst({
+    where: { id, status: "APPROVED" },
+    select: {
+      id: true,
+      title: true,
+      price: true,
+      originalPrice: true,
+      discountPercent: true,
+      status: true,
+      city: true,
+      voivodeship: true,
+      categoryId: true,
+      tags: true,
+      validFrom: true,
+      validTo: true,
+      createdAt: true,
+    },
+  });
+}

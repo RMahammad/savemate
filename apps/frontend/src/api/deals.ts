@@ -11,6 +11,13 @@ export type DealsListParams = paths["/deals"]["get"]["parameters"] extends {
   ? Q
   : never;
 
+export type DealGetResponse =
+  paths["/deals/{id}"]["get"]["responses"][200]["content"]["application/json"];
+
 export function listDeals(params: DealsListParams) {
   return typedApi.request("get", "/deals", { params });
+}
+
+export function getDeal(id: string) {
+  return typedApi.request("get", "/deals/{id}", { pathParams: { id } });
 }
