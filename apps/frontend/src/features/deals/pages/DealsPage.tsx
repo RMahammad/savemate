@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/sonner";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
 import { useDealsQuery } from "@/features/deals/hooks/useDealsQuery";
 import { formatDealsSortLabel } from "@/features/deals/sort";
+import { formatVoivodeshipLabel } from "@/lib/poland";
 import { X } from "lucide-react";
 import { useState } from "react";
 
@@ -44,7 +45,7 @@ export function DealsPage() {
   if (query.voivodeship) {
     activeChips.push({
       key: "voivodeship",
-      label: `Voivodeship: ${query.voivodeship}`,
+      label: `Voivodeship: ${formatVoivodeshipLabel(query.voivodeship)}`,
       onRemove: () => setParam({ voivodeship: undefined }),
     });
   }

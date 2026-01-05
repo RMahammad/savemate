@@ -9,6 +9,7 @@ import {
   DEALS_SORT_OPTIONS,
   formatDealsSortLabel,
 } from "@/features/deals/sort";
+import { formatVoivodeshipLabel } from "@/lib/poland";
 
 function formatTags(tags: DealsQuery["tags"]) {
   if (!tags) return "";
@@ -67,7 +68,7 @@ export function FilterSidebar({
             <option value="">Any</option>
             {VoivodeshipSchema.options.map((v) => (
               <option key={v} value={v}>
-                {v}
+                {formatVoivodeshipLabel(v)}
               </option>
             ))}
           </select>

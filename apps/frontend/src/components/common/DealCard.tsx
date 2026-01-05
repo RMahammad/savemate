@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PriceBlock } from "@/components/common/PriceBlock";
+import { formatVoivodeshipLabel } from "@/lib/poland";
 
 export type DealCardModel = {
   id: string;
@@ -32,7 +33,7 @@ export function DealCard({ deal }: { deal: DealCardModel }) {
             </Link>
 
             <div className="mt-1 text-sm text-slate-600">
-              {deal.city} • {deal.voivodeship}
+              {deal.city} • {formatVoivodeshipLabel(deal.voivodeship)}
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
