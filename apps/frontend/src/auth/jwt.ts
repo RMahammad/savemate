@@ -6,6 +6,13 @@ export type JwtUser = {
   businessId?: string;
 };
 
+type JwtAccessPayloadLike = {
+  sub?: string;
+  userId?: string;
+  role?: Role;
+  businessId?: string;
+};
+
 export function tryDecodeJwtUser(accessToken: string | null): JwtUser | null {
   if (!accessToken) return null;
 
@@ -19,12 +26,13 @@ export function tryDecodeJwtUser(accessToken: string | null): JwtUser | null {
       .padEnd(Math.ceil(parts[1].length / 4) * 4, "=");
 
     const json = atob(payloadBase64);
-    const payload = JSON.parse(json) as Partial<JwtUser>;
+    const payload = JSON.parse(json) as JwtAccessPayloadLike;
 
-    if (!payload.userId || !payload.role) return null;
+    const userId = payload.sub ?? payload.userId;
+    if (!userId || !payload.role) return null;
 
     return {
-      userId: payload.userId,
+      userId,
       role: payload.role,
       businessId: payload.businessId,
     };

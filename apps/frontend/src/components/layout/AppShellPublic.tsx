@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/auth/useAuth";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function AppShellPublic() {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   return (
@@ -24,7 +25,7 @@ export function AppShellPublic() {
 
             <nav className="hidden items-center gap-1 sm:flex">
               <Button asChild variant="ghost" size="sm">
-                <Link to="/">Deals</Link>
+                <Link to="/deals">Deals</Link>
               </Button>
             </nav>
           </div>
@@ -47,6 +48,7 @@ export function AppShellPublic() {
                     onSelect={(e) => {
                       e.preventDefault();
                       logout();
+                      navigate("/login", { replace: true });
                     }}
                   >
                     Logout
