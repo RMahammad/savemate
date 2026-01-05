@@ -27,6 +27,7 @@ export function DealCard({ deal }: { deal: DealCardModel }) {
           <div className="min-w-0">
             <Link
               to={`/deals/${deal.id}`}
+              state={{ deal }}
               className="block text-sm font-semibold text-slate-900 hover:underline"
             >
               {deal.title}
