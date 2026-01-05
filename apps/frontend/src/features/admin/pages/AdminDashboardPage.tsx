@@ -591,7 +591,7 @@ export function AdminDashboardPage() {
           />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <div className="grid grid-cols-12 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600">
+            <div className="hidden grid-cols-12 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600 md:grid">
               <div className="col-span-5">Name</div>
               <div className="col-span-5">Slug</div>
               <div className="col-span-2 text-right">Actions</div>
@@ -600,15 +600,15 @@ export function AdminDashboardPage() {
             {categories.map((c) => (
               <div
                 key={c.id}
-                className="grid grid-cols-12 items-center gap-3 border-b border-slate-100 px-4 py-4"
+                className="grid grid-cols-1 items-start gap-3 border-b border-slate-100 px-4 py-4 md:grid-cols-12 md:items-center"
               >
-                <div className="col-span-5 text-sm font-medium text-slate-900">
+                <div className="text-sm font-medium text-slate-900 md:col-span-5">
                   {c.name}
                 </div>
-                <div className="col-span-5 truncate font-mono text-xs text-slate-700">
+                <div className="truncate font-mono text-xs text-slate-700 md:col-span-5">
                   {c.slug}
                 </div>
-                <div className="col-span-2 flex justify-end gap-2">
+                <div className="flex flex-wrap justify-start gap-2 md:col-span-2 md:justify-end">
                   <Button
                     variant="secondary"
                     size="sm"

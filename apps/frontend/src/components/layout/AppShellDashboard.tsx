@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 
@@ -45,14 +45,15 @@ function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
 export function AppShellDashboard({ title }: { title?: ReactNode }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-slate-50/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="md:hidden">
-              <Sheet>
+            <div className="lg:hidden">
+              <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
                 <SheetTrigger asChild>
                   <Button
                     variant="secondary"
@@ -66,7 +67,7 @@ export function AppShellDashboard({ title }: { title?: ReactNode }) {
                   <SheetHeader>
                     <SheetTitle>Menu</SheetTitle>
                   </SheetHeader>
-                  <DashboardNav />
+                  <DashboardNav onNavigate={() => setMobileNavOpen(false)} />
                 </SheetContent>
               </Sheet>
             </div>
@@ -76,7 +77,7 @@ export function AppShellDashboard({ title }: { title?: ReactNode }) {
             </Link>
 
             {title ? (
-              <div className="hidden text-sm text-slate-600 md:block">
+              <div className="hidden text-sm text-slate-600 lg:block">
                 <Separator
                   orientation="vertical"
                   className="mx-3 inline-block h-5"
@@ -99,12 +100,12 @@ export function AppShellDashboard({ title }: { title?: ReactNode }) {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-6 md:grid-cols-[240px_1fr]">
-        <aside className="hidden rounded-2xl border border-slate-200 bg-white p-3 md:block">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[240px_1fr]">
+        <aside className="hidden rounded-2xl border border-slate-200 bg-white p-3 lg:block">
           <DashboardNav />
         </aside>
 
-        <main>
+        <main className="min-w-0">
           <Outlet />
         </main>
       </div>

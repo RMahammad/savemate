@@ -381,7 +381,7 @@ export function BusinessDashboardPage() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-3 mb-5">
           <div>
             <CardTitle>My deals</CardTitle>
             <div className="mt-1 text-sm text-slate-600">
@@ -408,8 +408,8 @@ export function BusinessDashboardPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2 md:col-span-2">
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="space-y-2 lg:col-span-2">
                   <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
@@ -423,7 +423,7 @@ export function BusinessDashboardPage() {
                   ) : null}
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 lg:col-span-2">
                   <Label htmlFor="description">Description</Label>
                   <textarea
                     id="description"
@@ -439,7 +439,7 @@ export function BusinessDashboardPage() {
                   ) : null}
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 lg:col-span-2">
                   <Label htmlFor="usageTerms">Usage terms (optional)</Label>
                   <textarea
                     id="usageTerms"
@@ -581,7 +581,7 @@ export function BusinessDashboardPage() {
                   ) : null}
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 lg:col-span-2">
                   <Label htmlFor="image">Image (optional)</Label>
                   <Input
                     id="image"
@@ -692,7 +692,7 @@ export function BusinessDashboardPage() {
       ) : (
         <div className="space-y-3">
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <div className="grid grid-cols-12 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600">
+            <div className="hidden grid-cols-12 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600 lg:grid">
               <div className="col-span-5">Deal</div>
               <div className="col-span-2">Status</div>
               <div className="col-span-3 text-right">Price</div>
@@ -702,9 +702,9 @@ export function BusinessDashboardPage() {
             {items.map((d) => (
               <div
                 key={d.id}
-                className="grid grid-cols-12 items-start gap-3 border-b border-slate-100 px-4 py-4"
+                className="grid grid-cols-1 items-start gap-3 border-b border-slate-100 px-4 py-4 lg:grid-cols-12"
               >
-                <div className="col-span-5 min-w-0">
+                <div className="min-w-0 lg:col-span-5">
                   <div className="flex items-start gap-3">
                     {d.imageUrl ? (
                       <img
@@ -732,11 +732,11 @@ export function BusinessDashboardPage() {
                   </div>
                 </div>
 
-                <div className="col-span-2 pt-0.5">
+                <div className="pt-0.5 lg:col-span-2">
                   <StatusBadge status={d.status} />
                 </div>
 
-                <div className="col-span-3 flex justify-end">
+                <div className="flex justify-start lg:col-span-3 lg:justify-end">
                   <PriceBlock
                     price={d.price}
                     originalPrice={d.originalPrice}
@@ -744,7 +744,7 @@ export function BusinessDashboardPage() {
                   />
                 </div>
 
-                <div className="col-span-2 flex justify-end gap-2">
+                <div className="flex flex-wrap justify-start gap-2 lg:col-span-2 lg:justify-end">
                   <Button
                     variant="secondary"
                     size="sm"
