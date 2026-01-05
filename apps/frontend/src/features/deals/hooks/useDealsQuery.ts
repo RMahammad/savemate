@@ -35,7 +35,8 @@ export function useDealsQuery() {
 
     const raw: Record<string, unknown> = {
       page: sp.get("page") ?? undefined,
-      limit: sp.get("limit") ?? undefined,
+      // Public deals feed default page size
+      limit: sp.get("limit") ?? "10",
       q: sp.get("q") ?? undefined,
       city: sp.get("city") ?? undefined,
       categoryId: sp.get("categoryId") ?? undefined,
@@ -53,7 +54,7 @@ export function useDealsQuery() {
     if (parsed.success) return parsed.data;
 
     // Fall back to defaults (ignore invalid URL state)
-    return DealsQuerySchema.parse({});
+    return DealsQuerySchema.parse({ limit: 10 });
   }, [searchKey]);
 
   function setParam(

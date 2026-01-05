@@ -103,10 +103,15 @@ export function AdminDealsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const pageSize = 10;
 
   const queryParams = useMemo(() => {
-    return AdminAllDealsQuerySchema.parse({ page, limit: 20, sort: "newest" });
-  }, [page]);
+    return AdminAllDealsQuerySchema.parse({
+      page,
+      limit: pageSize,
+      sort: "newest",
+    });
+  }, [page, pageSize]);
 
   const dealsQuery = useQuery({
     queryKey: ["admin", "deals", "all", queryParams],
