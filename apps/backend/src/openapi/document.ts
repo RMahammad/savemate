@@ -459,6 +459,22 @@ function buildRegistry(): OpenAPIRegistry {
   // Admin categories
   registry.registerPath({
     method: "get",
+    path: "/categories",
+    responses: {
+      200: {
+        description: "OK",
+        content: {
+          "application/json": {
+            schema: CategoriesListResponseSchema,
+          },
+        },
+      },
+      500: ErrorResponse,
+    },
+  });
+
+  registry.registerPath({
+    method: "get",
     path: "/admin/categories",
     security: [{ bearerAuth: [] }],
     responses: {

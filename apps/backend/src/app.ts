@@ -9,6 +9,7 @@ import { randomUUID } from "node:crypto";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import { authRouter } from "./routes/authRoutes.js";
 import { dealsRouter } from "./routes/dealsRoutes.js";
+import { categoriesRouter } from "./routes/categoriesRoutes.js";
 import { businessDealsRouter } from "./routes/businessDealsRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
 
@@ -57,6 +58,7 @@ export function createApp() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
   app.use("/auth", authRouter);
+  app.use("/categories", categoriesRouter);
   app.use("/deals", dealsRouter);
   app.use("/business/deals", businessDealsRouter);
   app.use("/admin", adminRouter);

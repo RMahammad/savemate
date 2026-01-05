@@ -4,7 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { DealCard } from "@/components/common/DealCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
+import { FaqSection } from "@/components/common/FaqSection";
 import { SkeletonDealCard } from "@/components/common/SkeletonDealCard";
+import { defaultFaqItems } from "@/content/faq";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useDealsFeed } from "@/features/deals/useDealsFeed";
 import type { LucideIcon } from "lucide-react";
 
-import { ChevronDown, Filter, ShieldCheck, Sparkles } from "lucide-react";
+import { Filter, ShieldCheck, Sparkles } from "lucide-react";
 
 type DealsParams = Record<string, string | undefined>;
 
@@ -121,34 +123,6 @@ const pricingPlans: Array<{
     ctaLabel: "Contact sales",
     ctaHref: "/register",
     ctaVariant: "secondary",
-  },
-];
-
-const faqItems: Array<{ question: string; answer: string }> = [
-  {
-    question: "How do I find deals in my city?",
-    answer:
-      "Use the search box on the homepage, or open the Deals page and filter by city/voivodeship.",
-  },
-  {
-    question: "Do I need an account to browse deals?",
-    answer:
-      "No — browsing is free. Create an account if you want business features or access to protected areas.",
-  },
-  {
-    question: "What do “Newest” and “Biggest discount” mean?",
-    answer:
-      "“Newest” sorts by recently published deals. “Biggest discount” prioritizes offers with the highest percentage discount.",
-  },
-  {
-    question: "How do businesses publish deals?",
-    answer:
-      "Register as a Business user, then go to the Business dashboard to create and manage your listings.",
-  },
-  {
-    question: "Are deals moderated?",
-    answer:
-      "Yes — business listings can go through moderation before appearing publicly, and always show validity dates.",
   },
 ];
 
@@ -389,32 +363,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">FAQ</h2>
-          <div className="mt-1 text-sm text-slate-600">
-            Quick answers to help you get started.
-          </div>
-        </div>
-
-        <Card>
-          <CardContent className="p-0">
-            <div className="divide-y divide-slate-200">
-              {faqItems.map((item) => (
-                <details key={item.question} className="group px-6 py-4">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 outline-none">
-                    <span>{item.question}</span>
-                    <ChevronDown className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-180" />
-                  </summary>
-                  <div className="mt-2 text-sm text-slate-600">
-                    {item.answer}
-                  </div>
-                </details>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+      <FaqSection items={defaultFaqItems} />
     </div>
   );
 }

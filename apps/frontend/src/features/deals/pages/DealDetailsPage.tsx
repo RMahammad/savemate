@@ -1,16 +1,20 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { EmptyState } from "@/components/common/EmptyState";
+import { FaqSection } from "@/components/common/FaqSection";
 import { MotionFade } from "@/components/common/Motion";
 import { PriceBlock } from "@/components/common/PriceBlock";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { CategoriesListResponse } from "@/api/categories";
+import { listCategories } from "@/api/categories";
+import { defaultFaqItems } from "@/content/faq";
 import type { DealsFeedResponse } from "@/features/deals/useDealsFeed";
 import { formatVoivodeshipLabel } from "@/lib/poland";
-import { Calendar, Hash, MapPin, Tag, Wallet } from "lucide-react";
+import { Calendar, Hash, Layers, MapPin, Tag, Wallet } from "lucide-react";
 
 type DealFromFeed = DealsFeedResponse["items"][number];
 
@@ -60,6 +64,16 @@ export function DealDetailsPage() {
   const deal =
     (id && dealFromState?.id === id ? dealFromState : undefined) ??
     (id ? findDealInCache(queryClient, id) : undefined);
+
+  const categoriesQuery = useQuery<CategoriesListResponse>({
+    queryKey: ["categories"],
+    queryFn: () => listCategories(),
+    staleTime: 5 * 60_000,
+  });
+
+  const category = categoriesQuery.data?.items.find(
+    (c) => c.id === deal?.categoryId
+  );
 
   return (
     <MotionFade>
@@ -118,7 +132,9 @@ export function DealDetailsPage() {
                   <Card>
                     <CardHeader className="py-4">
                       <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                        <Wallet className="h-4 w-4" />
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-1.5 text-emerald-700">
+                          <Wallet className="h-4 w-4" />
+                        </div>
                         Price summary
                       </div>
                     </CardHeader>
@@ -153,7 +169,9 @@ export function DealDetailsPage() {
                   <Card>
                     <CardHeader className="py-4">
                       <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                        <Tag className="h-4 w-4" />
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-1.5 text-amber-700">
+                          <Tag className="h-4 w-4" />
+                        </div>
                         Tags
                       </div>
                     </CardHeader>
@@ -175,7 +193,9 @@ export function DealDetailsPage() {
                   <Card>
                     <CardHeader className="py-4">
                       <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                        <Hash className="h-4 w-4" />
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-1.5 text-slate-700">
+                          <Hash className="h-4 w-4" />
+                        </div>
                         Details
                       </div>
                     </CardHeader>
@@ -189,8 +209,22 @@ export function DealDetailsPage() {
                         </div>
                         <div className="rounded-xl border border-slate-200 bg-white p-3">
                           <div className="text-xs text-slate-500">Category</div>
-                          <div className="mt-1 truncate font-mono text-xs text-slate-900">
-                            {deal.categoryId}
+                          <div className="mt-1 flex items-center gap-2">
+                            <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-1.5 text-indigo-700">
+                              <Layers className="h-4 w-4" />
+                            </div>
+
+                            {category ? (
+                              <div className="truncate text-sm font-semibold text-slate-900">
+                                {category.name}
+                              </div>
+                            ) : categoriesQuery.isLoading ? (
+                              <div className="h-4 w-32 animate-pulse rounded bg-slate-100" />
+                            ) : (
+                              <div className="truncate font-mono text-xs text-slate-900">
+                                {deal.categoryId}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -221,6 +255,12 @@ export function DealDetailsPage() {
               </div>
             </CardContent>
           </Card>
+
+          <FaqSection
+            items={defaultFaqItems}
+            title="FAQ"
+            description="Answers about browsing and sorting deals."
+          />
         </div>
       )}
     </MotionFade>
