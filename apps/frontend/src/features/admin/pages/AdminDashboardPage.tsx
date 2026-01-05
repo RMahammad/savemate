@@ -479,71 +479,82 @@ export function AdminDashboardPage() {
           </Button>
         </div>
 
-        {showCategoryForm ? (
-          <div className="flex justify-end">
-            <Card className="w-full max-w-xl">
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  {editingCategory ? "Edit category" : "Create category"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form
-                  className="space-y-4"
-                  onSubmit={categoryForm.handleSubmit(submitCategory)}
-                >
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="catName">Name</Label>
-                      <Input
-                        id="catName"
-                        placeholder="e.g. Restaurants"
-                        {...categoryForm.register("name", { required: true })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="catSlug">Slug</Label>
-                      <Input
-                        id="catSlug"
-                        placeholder="e.g. restaurants"
-                        {...categoryForm.register("slug", { required: true })}
-                      />
-                    </div>
-                  </div>
+        <AlertDialog
+          open={showCategoryForm}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowCategoryForm(false);
+              setEditingCategory(null);
+              categoryForm.reset({ name: "", slug: "" });
+            }
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {editingCategory ? "Edit category" : "Create category"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {editingCategory
+                  ? "Update the category name and slug."
+                  : "Create a new category for deals."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
 
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => {
-                        setShowCategoryForm(false);
-                        setEditingCategory(null);
-                        categoryForm.reset({ name: "", slug: "" });
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={
-                        createCategoryMutation.isPending ||
-                        updateCategoryMutation.isPending
-                      }
-                    >
-                      {editingCategory
-                        ? updateCategoryMutation.isPending
-                          ? "Saving…"
-                          : "Save"
-                        : createCategoryMutation.isPending
-                          ? "Creating…"
-                          : "Create"}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        ) : null}
+            <form
+              className="mt-4 space-y-4"
+              onSubmit={categoryForm.handleSubmit(submitCategory)}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="catName">Name</Label>
+                  <Input
+                    id="catName"
+                    placeholder="e.g. Restaurants"
+                    {...categoryForm.register("name", { required: true })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="catSlug">Slug</Label>
+                  <Input
+                    id="catSlug"
+                    placeholder="e.g. restaurants"
+                    {...categoryForm.register("slug", { required: true })}
+                  />
+                </div>
+              </div>
+
+              <AlertDialogFooter>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowCategoryForm(false);
+                    setEditingCategory(null);
+                    categoryForm.reset({ name: "", slug: "" });
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    createCategoryMutation.isPending ||
+                    updateCategoryMutation.isPending
+                  }
+                >
+                  {editingCategory
+                    ? updateCategoryMutation.isPending
+                      ? "Saving…"
+                      : "Save"
+                    : createCategoryMutation.isPending
+                      ? "Creating…"
+                      : "Create"}
+                </Button>
+              </AlertDialogFooter>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {categoriesQuery.isLoading ? (
           <Card>
