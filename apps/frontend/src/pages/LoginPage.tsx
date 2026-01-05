@@ -1,89 +1,136 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 import { LoginSchema } from "@savemate/shared-validation";
-import { login } from "../api/auth";
-import type { NormalizedError } from "../api/normalizedError";
-import { useAuth } from "../auth/useAuth";
+import type { z } from "zod";
+
+import { login } from "@/api/auth";
+import type { NormalizedError } from "@/api/normalizedError";
+import { MotionFade } from "@/components/common/Motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/sonner";
+import { tryDecodeJwtUser } from "@/auth/jwt";
+import { useAuth } from "@/auth/useAuth";
+
+type LoginForm = z.infer<typeof LoginSchema>;
+
+function postAuthRedirect(accessToken: string) {
+  const user = tryDecodeJwtUser(accessToken);
+  if (!user) return "/deals";
+  switch (user.role) {
+    case "ADMIN":
+      return "/admin";
+    case "BUSINESS":
+      return "/business";
+    case "USER":
+    default:
+      return "/deals";
+  }
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { setAccessToken } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const form = useForm<LoginForm>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: { email: "", password: "" },
+    mode: "onTouched",
+  });
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
+  const errorMessage = (form.formState.errors.root as any)?.message as
+    | string
+    | undefined;
 
-    const parsed = LoginSchema.safeParse({ email, password });
-    if (!parsed.success) {
-      setError("Please enter a valid email and password.");
-      return;
-    }
+  async function onSubmit(values: LoginForm) {
+    form.clearErrors("root");
 
-    setLoading(true);
     try {
-      const res = await login(parsed.data);
+      const res = await login(values);
       setAccessToken(res.accessToken);
-      navigate("/", { replace: true });
+      toast.success("Welcome back", { description: "You’re now signed in." });
+      navigate(postAuthRedirect(res.accessToken), { replace: true });
     } catch (e2) {
       const err = e2 as NormalizedError;
-      setError(err.error.message);
-    } finally {
-      setLoading(false);
+      form.setError("root", { message: err.error.message });
     }
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="text-xl font-semibold">Login</h1>
+    <MotionFade>
+      <div className="mx-auto w-full max-w-md">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Welcome back</CardTitle>
+            <div className="text-sm text-slate-600">
+              Sign in to manage your account.
+            </div>
+          </CardHeader>
 
-      <form onSubmit={onSubmit} className="mt-4 space-y-3">
-        <label className="block">
-          <div className="text-sm text-slate-700">Email</div>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
-            type="email"
-            autoComplete="email"
-          />
-        </label>
+          <CardContent>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  {...form.register("email")}
+                />
+                {form.formState.errors.email?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.email.message}
+                  </div>
+                ) : null}
+              </div>
 
-        <label className="block">
-          <div className="text-sm text-slate-700">Password</div>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
-            type="password"
-            autoComplete="current-password"
-          />
-        </label>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  {...form.register("password")}
+                />
+                {form.formState.errors.password?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.password.message}
+                  </div>
+                ) : null}
+              </div>
 
-        {error && <div className="text-sm text-red-700">{error}</div>}
+              {errorMessage ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                  {errorMessage}
+                </div>
+              ) : null}
 
-        <button
-          disabled={loading}
-          className="w-full rounded bg-slate-900 px-3 py-2 text-white disabled:opacity-50"
-          type="submit"
-        >
-          {loading ? "Signing in…" : "Login"}
-        </button>
-      </form>
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Signing in…" : "Login"}
+              </Button>
 
-      <div className="mt-4 flex items-center justify-between text-sm">
-        <Link to="/forgot" className="text-slate-700 underline">
-          Forgot password?
-        </Link>
-        <Link to="/register" className="text-slate-700 underline">
-          Register
-        </Link>
+              <div className="flex items-center justify-between text-sm">
+                <Link to="/forgot" className="text-slate-700 underline">
+                  Forgot password?
+                </Link>
+                <Link to="/register" className="text-slate-700 underline">
+                  Register
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </MotionFade>
   );
 }

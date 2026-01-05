@@ -1,76 +1,107 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+import type { z } from "zod";
 
 import { ForgotPasswordSchema } from "@savemate/shared-validation";
-import { forgotPassword } from "../api/auth";
-import type { NormalizedError } from "../api/normalizedError";
+import { forgotPassword } from "@/api/auth";
+import type { NormalizedError } from "@/api/normalizedError";
+import { MotionFade } from "@/components/common/Motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/sonner";
+
+type ForgotForm = z.infer<typeof ForgotPasswordSchema>;
 
 export function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const form = useForm<ForgotForm>({
+    resolver: zodResolver(ForgotPasswordSchema),
+    defaultValues: { email: "" },
+    mode: "onTouched",
+  });
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setOk(false);
+  const errorMessage = (form.formState.errors.root as any)?.message as
+    | string
+    | undefined;
 
-    const parsed = ForgotPasswordSchema.safeParse({ email });
-    if (!parsed.success) {
-      setError("Please enter a valid email.");
-      return;
-    }
-
-    setLoading(true);
+  async function onSubmit(values: ForgotForm) {
+    form.clearErrors("root");
     try {
-      await forgotPassword(parsed.data);
-      setOk(true);
+      const res = await forgotPassword(values);
+      toast.success("Request received", {
+        description:
+          "If an account exists, you’ll receive a reset link shortly.",
+      });
+
+      // If backend returns token in dev, show it as well.
+      if ((res as any)?.token) {
+        toast.message("Dev reset token", {
+          description: String((res as any).token),
+        });
+      }
+
+      form.reset({ email: values.email });
     } catch (e2) {
       const err = e2 as NormalizedError;
-      setError(err.error.message);
-    } finally {
-      setLoading(false);
+      form.setError("root", { message: err.error.message });
     }
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="text-xl font-semibold">Forgot password</h1>
+    <MotionFade>
+      <div className="mx-auto w-full max-w-md">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Forgot password</CardTitle>
+            <div className="text-sm text-slate-600">
+              We’ll send you a reset link if the email exists.
+            </div>
+          </CardHeader>
 
-      <form onSubmit={onSubmit} className="mt-4 space-y-3">
-        <label className="block">
-          <div className="text-sm text-slate-700">Email</div>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-3 py-2"
-            type="email"
-            autoComplete="email"
-          />
-        </label>
+          <CardContent>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  {...form.register("email")}
+                />
+                {form.formState.errors.email?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.email.message}
+                  </div>
+                ) : null}
+              </div>
 
-        {ok && (
-          <div className="text-sm text-slate-700">
-            If an account exists, a reset email will be sent.
-          </div>
-        )}
-        {error && <div className="text-sm text-red-700">{error}</div>}
+              {errorMessage ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                  {errorMessage}
+                </div>
+              ) : null}
 
-        <button
-          disabled={loading}
-          className="w-full rounded bg-slate-900 px-3 py-2 text-white disabled:opacity-50"
-          type="submit"
-        >
-          {loading ? "Sending…" : "Send reset link"}
-        </button>
-      </form>
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Sending…" : "Send reset link"}
+              </Button>
 
-      <div className="mt-4 text-sm">
-        <Link to="/login" className="text-slate-700 underline">
-          Back to login
-        </Link>
+              <div className="text-sm">
+                <Link to="/login" className="text-slate-700 underline">
+                  Back to login
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </MotionFade>
   );
 }
