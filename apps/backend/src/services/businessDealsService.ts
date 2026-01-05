@@ -143,7 +143,8 @@ export async function updateMyDeal(
     next.validTo = toDateOrThrow(input.validTo, "validTo");
 
   if (typeof input.city === "string") next.city = normalizeCity(input.city);
-  if (Array.isArray((input as any).tags)) next.tags = normalizeTags((input as any).tags);
+  if (Array.isArray((input as any).tags))
+    next.tags = normalizeTags((input as any).tags);
 
   return updateBusinessDeal(dealId, next);
 }

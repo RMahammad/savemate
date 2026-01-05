@@ -77,7 +77,9 @@ export function buildApprovedDealsWhere(
             { description: { contains: q, mode: "insensitive" } },
             { city: { contains: q, mode: "insensitive" } },
             { voivodeship: { contains: q, mode: "insensitive" } },
-            { category: { is: { name: { contains: q, mode: "insensitive" } } } },
+            {
+              category: { is: { name: { contains: q, mode: "insensitive" } } },
+            },
             ...(caseVariants(q).length
               ? [{ tags: { hasSome: caseVariants(q) } }]
               : []),
