@@ -27,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const user = useMemo(() => tryDecodeJwtUser(accessToken), [accessToken]);
 
   function setAccessToken(token: string | null) {
+    setAccessTokenState(token);
     setStoredAccessToken(token);
   }
 
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void apiLogout().catch(() => {
       // ignore
     });
+    setAccessTokenState(null);
     setStoredAccessToken(null);
   }
 

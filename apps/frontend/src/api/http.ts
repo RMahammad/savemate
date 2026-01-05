@@ -50,7 +50,18 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original?._retry) {
+    const originalUrl = (original?.url as string | undefined) ?? "";
+    const skipAuthRefresh =
+      (original as { skipAuthRefresh?: boolean } | undefined)
+        ?.skipAuthRefresh ?? false;
+    const isLogoutRequest = originalUrl.includes("/auth/logout");
+
+    if (
+      error.response?.status === 401 &&
+      !original?._retry &&
+      !skipAuthRefresh &&
+      !isLogoutRequest
+    ) {
       original._retry = true;
 
       refreshing ??= refreshAccessToken().finally(() => {

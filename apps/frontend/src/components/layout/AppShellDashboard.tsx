@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 
 import { useAuth } from "@/auth/useAuth";
@@ -17,7 +17,7 @@ function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
   const { user } = useAuth();
 
   const items: Array<{ to: string; label: string; show?: boolean }> = [
-    { to: "/profile", label: "Profile", show: true },
+    { to: "/profile", label: "Profile", show: !!user },
     { to: "/business", label: "Business", show: user?.role === "BUSINESS" },
     { to: "/admin", label: "Admin", show: user?.role === "ADMIN" },
   ];
@@ -42,6 +42,7 @@ function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function AppShellDashboard({ title }: { title?: ReactNode }) {
+  const navigate = useNavigate();
   const { logout } = useAuth();
 
   return (
@@ -84,7 +85,14 @@ export function AppShellDashboard({ title }: { title?: ReactNode }) {
             ) : null}
           </div>
 
-          <Button variant="secondary" size="sm" onClick={logout}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              logout();
+              navigate("/login", { replace: true });
+            }}
+          >
             Logout
           </Button>
         </div>

@@ -1,5 +1,7 @@
 import type { paths } from "@savemate/api-client";
 
+import { api } from "@/api/http";
+import { getAccessToken } from "@/features/auth/authStore";
 import { typedApi } from "@/api/typedClient";
 
 type SuccessStatus = 200 | 201 | 202 | 204;
@@ -41,7 +43,19 @@ export function resetPassword(body: RequestJsonBody<"/auth/reset", "post">) {
 }
 
 export function logout() {
-  return typedApi.request("post", "/auth/logout", {});
+  const token = getAccessToken();
+  // Use raw axios here so we can force Authorization even if the store is
+  // cleared immediately after logout is clicked.
+  return api.post(
+    "/auth/logout",
+    {},
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      // Custom flag consumed by our interceptor to avoid refresh-on-401.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...({ skipAuthRefresh: true } as any),
+    }
+  );
 }
 
 export function refresh() {
