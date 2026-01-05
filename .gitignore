@@ -18,6 +18,9 @@ apps/frontend/.vite/
 # Prisma
 apps/backend/prisma/.cache/
 
+# Uploads (local dev)
+apps/backend/uploads/
+
 # Logs
 logs/
 *.log

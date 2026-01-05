@@ -16,6 +16,7 @@ import { getUploadsDir } from "./utils/uploads.js";
 
 export function createApp() {
   const app = express();
+  const isProd = process.env.NODE_ENV === "production";
 
   app.disable("x-powered-by");
 
@@ -34,7 +35,13 @@ export function createApp() {
     })
   );
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      // Allow images to be embedded from the frontend dev server origin.
+      // Default Helmet CORP is `same-origin` which can trigger ERR_BLOCKED_BY_RESPONSE.NotSameOrigin.
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    })
+  );
 
   app.use(
     cors({
@@ -54,7 +61,15 @@ export function createApp() {
     express.static(getUploadsDir(), {
       fallthrough: false,
       setHeaders(res) {
-        res.setHeader("cache-control", "public, max-age=31536000, immutable");
+        // Allow loading images from the frontend dev server (different origin).
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+
+        // In dev, avoid immutable caching. If the browser cached an older CORP header
+        // with `immutable`, it can keep blocking the resource for a long time.
+        res.setHeader(
+          "cache-control",
+          isProd ? "public, max-age=31536000, immutable" : "no-store"
+        );
       },
     })
   );
