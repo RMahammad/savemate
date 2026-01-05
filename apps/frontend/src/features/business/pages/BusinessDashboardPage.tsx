@@ -25,6 +25,14 @@ import { PriceBlock } from "@/components/common/PriceBlock";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -394,286 +402,298 @@ export function BusinessDashboardPage() {
         </CardHeader>
       </Card>
 
-      {showForm ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
+      <AlertDialog
+        open={showForm}
+        onOpenChange={(open) => {
+          if (open) {
+            setShowForm(true);
+            return;
+          }
+          setShowForm(false);
+          setEditing(null);
+          setImageState(null);
+          form.reset();
+        }}
+      >
+        <AlertDialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {editing ? "Edit deal" : "Create deal"}
-            </CardTitle>
-            <div className="text-sm text-slate-600">
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {editing
                 ? "Update the fields below and save changes."
                 : "Fill in the details and submit for review."}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="space-y-2 lg:col-span-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="e.g. 30% off coffee"
-                    {...form.register("title")}
-                  />
-                  {form.formState.errors.title?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.title.message as any}
-                    </div>
-                  ) : null}
-                </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-                <div className="space-y-2 lg:col-span-2">
-                  <Label htmlFor="description">Description</Label>
-                  <textarea
-                    id="description"
-                    rows={4}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                    placeholder="What is included? Any important details?"
-                    {...form.register("description")}
-                  />
-                  {form.formState.errors.description?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.description.message as any}
-                    </div>
-                  ) : null}
-                </div>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="mt-4 space-y-5"
+          >
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="space-y-2 lg:col-span-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  placeholder="e.g. 30% off coffee"
+                  {...form.register("title")}
+                />
+                {form.formState.errors.title?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.title.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2 lg:col-span-2">
-                  <Label htmlFor="usageTerms">Usage terms (optional)</Label>
-                  <textarea
-                    id="usageTerms"
-                    rows={3}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                    placeholder="e.g. Valid Mon–Fri. One per customer."
-                    {...form.register("usageTerms")}
-                  />
-                  {form.formState.errors.usageTerms?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.usageTerms.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2 lg:col-span-2">
+                <Label htmlFor="description">Description</Label>
+                <textarea
+                  id="description"
+                  rows={4}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                  placeholder="What is included? Any important details?"
+                  {...form.register("description")}
+                />
+                {form.formState.errors.description?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.description.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price (PLN)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    {...form.register("price", { valueAsNumber: true })}
-                  />
-                  {form.formState.errors.price?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.price.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2 lg:col-span-2">
+                <Label htmlFor="usageTerms">Usage terms (optional)</Label>
+                <textarea
+                  id="usageTerms"
+                  rows={3}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                  placeholder="e.g. Valid Mon–Fri. One per customer."
+                  {...form.register("usageTerms")}
+                />
+                {form.formState.errors.usageTerms?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.usageTerms.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="originalPrice">Original price (PLN)</Label>
-                  <Input
-                    id="originalPrice"
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    {...form.register("originalPrice", { valueAsNumber: true })}
-                  />
-                  {form.formState.errors.originalPrice?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.originalPrice.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price (PLN)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  {...form.register("price", { valueAsNumber: true })}
+                />
+                {form.formState.errors.price?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.price.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="categoryId">Category</Label>
-                  <select
-                    id="categoryId"
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                    {...form.register("categoryId")}
-                  >
-                    <option value="" disabled>
-                      Select a category…
+              <div className="space-y-2">
+                <Label htmlFor="originalPrice">Original price (PLN)</Label>
+                <Input
+                  id="originalPrice"
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  {...form.register("originalPrice", { valueAsNumber: true })}
+                />
+                {form.formState.errors.originalPrice?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.originalPrice.message as any}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="categoryId">Category</Label>
+                <select
+                  id="categoryId"
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                  {...form.register("categoryId")}
+                >
+                  <option value="" disabled>
+                    Select a category…
+                  </option>
+                  {(categoriesQuery.data?.items ?? []).map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
                     </option>
-                    {(categoriesQuery.data?.items ?? []).map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.categoryId?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.categoryId.message as any}
-                    </div>
-                  ) : null}
-                </div>
+                  ))}
+                </select>
+                {form.formState.errors.categoryId?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.categoryId.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="voivodeship">Voivodeship</Label>
-                  <select
-                    id="voivodeship"
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                    {...form.register("voivodeship")}
-                  >
-                    {voivodeships.map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.voivodeship?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.voivodeship.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="voivodeship">Voivodeship</Label>
+                <select
+                  id="voivodeship"
+                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                  {...form.register("voivodeship")}
+                >
+                  {voivodeships.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+                {form.formState.errors.voivodeship?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.voivodeship.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    placeholder="e.g. Warsaw"
-                    {...form.register("city")}
-                  />
-                  {form.formState.errors.city?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.city.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  placeholder="e.g. Warsaw"
+                  {...form.register("city")}
+                />
+                {form.formState.errors.city?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.city.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="tagsText">Tags (comma-separated)</Label>
-                  <Input
-                    id="tagsText"
-                    placeholder="e.g. coffee, breakfast, takeaway"
-                    {...form.register("tagsText")}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="tagsText">Tags (comma-separated)</Label>
+                <Input
+                  id="tagsText"
+                  placeholder="e.g. coffee, breakfast, takeaway"
+                  {...form.register("tagsText")}
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="validFrom">Valid from</Label>
-                  <Input
-                    id="validFrom"
-                    type="datetime-local"
-                    {...form.register("validFrom")}
-                  />
-                  {form.formState.errors.validFrom?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.validFrom.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="validFrom">Valid from</Label>
+                <Input
+                  id="validFrom"
+                  type="datetime-local"
+                  {...form.register("validFrom")}
+                />
+                {form.formState.errors.validFrom?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.validFrom.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="validTo">Valid to</Label>
-                  <Input
-                    id="validTo"
-                    type="datetime-local"
-                    {...form.register("validTo")}
-                  />
-                  {form.formState.errors.validTo?.message ? (
-                    <div className="text-sm text-red-700">
-                      {form.formState.errors.validTo.message as any}
-                    </div>
-                  ) : null}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="validTo">Valid to</Label>
+                <Input
+                  id="validTo"
+                  type="datetime-local"
+                  {...form.register("validTo")}
+                />
+                {form.formState.errors.validTo?.message ? (
+                  <div className="text-sm text-red-700">
+                    {form.formState.errors.validTo.message as any}
+                  </div>
+                ) : null}
+              </div>
 
-                <div className="space-y-2 lg:col-span-2">
-                  <Label htmlFor="image">Image (optional)</Label>
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) {
-                        setImageState(null);
-                        return;
+              <div className="space-y-2 lg:col-span-2">
+                <Label htmlFor="image">Image (optional)</Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) {
+                      setImageState(null);
+                      return;
+                    }
+
+                    const mimeParsed = DealImageMimeSchema.safeParse(file.type);
+                    if (!mimeParsed.success) {
+                      toast.error("Unsupported image type", {
+                        description: "Use PNG, JPG, or WEBP.",
+                      });
+                      e.target.value = "";
+                      setImageState(null);
+                      return;
+                    }
+
+                    const base64 = await new Promise<string>(
+                      (resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () =>
+                          resolve(String(reader.result ?? ""));
+                        reader.onerror = () =>
+                          reject(new Error("Failed to read file"));
+                        reader.readAsDataURL(file);
                       }
+                    );
 
-                      const mimeParsed = DealImageMimeSchema.safeParse(
-                        file.type
-                      );
-                      if (!mimeParsed.success) {
-                        toast.error("Unsupported image type", {
-                          description: "Use PNG, JPG, or WEBP.",
-                        });
-                        e.target.value = "";
-                        setImageState(null);
-                        return;
-                      }
+                    setImageState({ base64, mime: mimeParsed.data });
+                  }}
+                />
 
-                      const base64 = await new Promise<string>(
-                        (resolve, reject) => {
-                          const reader = new FileReader();
-                          reader.onload = () =>
-                            resolve(String(reader.result ?? ""));
-                          reader.onerror = () =>
-                            reject(new Error("Failed to read file"));
-                          reader.readAsDataURL(file);
-                        }
-                      );
-
-                      setImageState({ base64, mime: mimeParsed.data });
-                    }}
-                  />
-
-                  {editing?.imageUrl ? (
-                    <div className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                      <img
-                        src={resolveImageUrl(editing.imageUrl)}
-                        alt="Current"
-                        className="h-12 w-12 rounded-xl object-cover"
-                      />
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium text-slate-900">
-                          Current image
-                        </div>
-                        <div className="text-xs text-slate-600">
-                          Upload a new file to replace it.
-                        </div>
+                {editing?.imageUrl ? (
+                  <div className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <img
+                      src={resolveImageUrl(editing.imageUrl)}
+                      alt="Current"
+                      className="h-12 w-12 rounded-xl object-cover"
+                    />
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-slate-900">
+                        Current image
+                      </div>
+                      <div className="text-xs text-slate-600">
+                        Upload a new file to replace it.
                       </div>
                     </div>
-                  ) : null}
-                </div>
+                  </div>
+                ) : null}
               </div>
+            </div>
 
-              {rootError ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-                  {rootError}
-                </div>
-              ) : null}
-
-              <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditing(null);
-                    setImageState(null);
-                    form.reset();
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={!canSubmit}>
-                  {editing
-                    ? updateMutation.isPending
-                      ? "Saving…"
-                      : "Save changes"
-                    : createMutation.isPending
-                      ? "Creating…"
-                      : "Create deal"}
-                </Button>
+            {rootError ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                {rootError}
               </div>
-            </form>
-          </CardContent>
-        </Card>
-      ) : null}
+            ) : null}
+
+            <AlertDialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditing(null);
+                  setImageState(null);
+                  form.reset();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!canSubmit}>
+                {editing
+                  ? updateMutation.isPending
+                    ? "Saving…"
+                    : "Save changes"
+                  : createMutation.isPending
+                    ? "Creating…"
+                    : "Create deal"}
+              </Button>
+            </AlertDialogFooter>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {myDealsQuery.isLoading ? (
         <DealsTableSkeleton />
@@ -732,11 +752,38 @@ export function BusinessDashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-0.5 lg:col-span-2">
+                <div className="flex flex-wrap items-start justify-between gap-3 lg:hidden">
+                  <StatusBadge status={d.status} />
+                  <div className="shrink-0">
+                    <PriceBlock
+                      price={d.price}
+                      originalPrice={d.originalPrice}
+                      discountPercent={d.discountPercent}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => startEdit(d)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setConfirmDeleteId(d.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="hidden pt-0.5 lg:block lg:col-span-2">
                   <StatusBadge status={d.status} />
                 </div>
 
-                <div className="flex justify-start lg:col-span-3 lg:justify-end">
+                <div className="hidden justify-start lg:flex lg:col-span-3 lg:justify-end">
                   <PriceBlock
                     price={d.price}
                     originalPrice={d.originalPrice}
@@ -744,7 +791,7 @@ export function BusinessDashboardPage() {
                   />
                 </div>
 
-                <div className="flex flex-wrap justify-start gap-2 lg:col-span-2 lg:justify-end">
+                <div className="hidden flex-wrap justify-start gap-2 lg:flex lg:col-span-2 lg:justify-end">
                   <Button
                     variant="secondary"
                     size="sm"

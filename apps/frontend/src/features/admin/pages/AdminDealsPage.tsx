@@ -167,7 +167,7 @@ export function AdminDealsPage() {
       ) : (
         <div className="space-y-3">
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <div className="grid grid-cols-1 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600 md:grid-cols-12">
+            <div className="hidden grid-cols-12 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600 md:grid">
               <div className="md:col-span-6">Deal</div>
               <div className="md:col-span-2">Status</div>
               <div className="md:col-span-2 md:text-right">Price</div>
@@ -213,11 +213,47 @@ export function AdminDealsPage() {
                   </div>
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="flex flex-wrap items-start justify-between gap-3 md:hidden">
+                  <StatusBadge status={d.status} />
+                  <div className="shrink-0">
+                    <PriceBlock
+                      price={d.price}
+                      originalPrice={d.originalPrice}
+                      discountPercent={d.discountPercent}
+                    />
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary" size="sm">
+                        Set status
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {STATUSES.map((s) => (
+                        <DropdownMenuItem
+                          key={s}
+                          disabled={setStatusMutation.isPending}
+                          onClick={() => {
+                            if (s === "REJECTED") {
+                              setRejectingId(d.id);
+                              rejectForm.reset({ reason: "" });
+                              return;
+                            }
+                            setStatusMutation.mutate({ id: d.id, status: s });
+                          }}
+                        >
+                          {s}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="hidden md:block md:col-span-2">
                   <StatusBadge status={d.status} />
                 </div>
 
-                <div className="flex justify-start md:col-span-2 md:justify-end">
+                <div className="hidden justify-start md:flex md:col-span-2 md:justify-end">
                   <PriceBlock
                     price={d.price}
                     originalPrice={d.originalPrice}
@@ -225,7 +261,7 @@ export function AdminDealsPage() {
                   />
                 </div>
 
-                <div className="flex items-start justify-start md:col-span-2 md:justify-end">
+                <div className="hidden items-start justify-start md:flex md:col-span-2 md:justify-end">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="secondary" size="sm">

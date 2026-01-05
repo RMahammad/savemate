@@ -281,7 +281,7 @@ export function AdminDashboardPage() {
         ) : (
           <div className="space-y-3">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              <div className="grid grid-cols-1 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600 md:grid-cols-12">
+              <div className="hidden grid-cols-12 gap-3 border-b border-slate-200 px-4 py-3 text-xs font-medium text-slate-600 md:grid">
                 <div className="md:col-span-5">Deal</div>
                 <div className="md:col-span-2">Status</div>
                 <div className="md:col-span-2 md:text-right">Price</div>
@@ -364,11 +364,42 @@ export function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="pt-0.5 md:col-span-2">
+                  <div className="flex flex-wrap items-start justify-between gap-3 md:hidden">
+                    <StatusBadge status={d.status} />
+                    <div className="shrink-0">
+                      <PriceBlock
+                        price={d.price}
+                        originalPrice={d.originalPrice}
+                        discountPercent={d.discountPercent}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={approveMutation.isPending}
+                        onClick={() => approveMutation.mutate(d.id)}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setRejectingId(d.id);
+                          rejectForm.reset({ reason: "" });
+                        }}
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="hidden pt-0.5 md:block md:col-span-2">
                     <StatusBadge status={d.status} />
                   </div>
 
-                  <div className="flex justify-start md:col-span-2 md:justify-end">
+                  <div className="hidden justify-start md:flex md:col-span-2 md:justify-end">
                     <PriceBlock
                       price={d.price}
                       originalPrice={d.originalPrice}
@@ -376,7 +407,7 @@ export function AdminDashboardPage() {
                     />
                   </div>
 
-                  <div className="flex flex-col items-start gap-2 md:col-span-3 md:items-end">
+                  <div className="hidden flex-col items-start gap-2 md:flex md:col-span-3 md:items-end">
                     <Button
                       variant="secondary"
                       size="sm"
