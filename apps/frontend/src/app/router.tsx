@@ -4,6 +4,7 @@ import { AppShellPublic } from "@/components/layout/AppShellPublic";
 import { AppShellDashboard } from "@/components/layout/AppShellDashboard";
 import { ProtectedRoute } from "@/components/common/ProtectedRoute";
 import { AdminDashboardPage } from "@/features/admin/pages/AdminDashboardPage";
+import { AdminDealsPage } from "@/features/admin/pages/AdminDealsPage";
 import { BusinessDashboardPage } from "@/features/business/pages/BusinessDashboardPage";
 import { DealDetailsPage } from "@/features/deals/pages/DealDetailsPage";
 import { DealsPage } from "@/features/deals/pages/DealsPage";
@@ -53,6 +54,9 @@ export const routes: RouteObject[] = [
         <AppShellDashboard title="Admin" />
       </ProtectedRoute>
     ),
-    children: [{ index: true, element: <AdminDashboardPage /> }],
+    children: [
+      { index: true, element: <AdminDashboardPage /> },
+      { path: "deals", element: <AdminDealsPage /> },
+    ],
   },
 ];

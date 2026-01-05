@@ -18,6 +18,7 @@ import {
   rejectDeal,
   updateCategory,
 } from "@/api/admin";
+import { API_BASE_URL } from "@/api/axios";
 import type { NormalizedError } from "@/api/normalizedError";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -27,12 +28,29 @@ import { PriceBlock } from "@/components/common/PriceBlock";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/sonner";
 
 type RejectForm = z.infer<typeof AdminRejectSchema>;
+
+function resolveImageUrl(imageUrl: string) {
+  if (!imageUrl) return imageUrl;
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl;
+  }
+  if (imageUrl.startsWith("data:")) return imageUrl;
+  return `${API_BASE_URL}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+}
 
 function errorMessage(e: unknown, fallback = "Something went wrong") {
   const asNormalized = e as Partial<NormalizedError> | undefined;
@@ -267,11 +285,26 @@ export function AdminDashboardPage() {
                   className="grid grid-cols-1 items-start gap-3 border-b border-slate-100 px-4 py-4 md:grid-cols-12"
                 >
                   <div className="min-w-0 md:col-span-5">
-                    <div className="truncate text-sm font-semibold text-slate-900">
-                      {d.title}
-                    </div>
-                    <div className="mt-1 line-clamp-2 text-sm text-slate-600">
-                      {d.description}
+                    <div className="flex items-start gap-3">
+                      {d.imageUrl ? (
+                        <img
+                          src={resolveImageUrl(d.imageUrl)}
+                          alt={d.title}
+                          className="h-12 w-12 flex-none rounded-xl border border-slate-200 object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 flex-none rounded-xl border border-slate-200 bg-slate-50" />
+                      )}
+
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-slate-900">
+                          {d.title}
+                        </div>
+                        <div className="mt-1 line-clamp-2 text-sm text-slate-600">
+                          {d.description}
+                        </div>
+                      </div>
                     </div>
 
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
@@ -367,61 +400,69 @@ export function AdminDashboardPage() {
         )}
       </div>
 
-      {rejectingId ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Reject deal</CardTitle>
-            <div className="text-sm text-slate-600">
+      <AlertDialog
+        open={Boolean(rejectingId)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRejectingId(null);
+            rejectForm.reset({ reason: "" });
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reject deal</AlertDialogTitle>
+            <AlertDialogDescription>
               Provide a reason that will be shown to the business.
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form
-              className="space-y-4"
-              onSubmit={rejectForm.handleSubmit(async (values) => {
-                await rejectMutation.mutateAsync({
-                  id: rejectingId,
-                  reason: values.reason,
-                });
-                setRejectingId(null);
-                rejectForm.reset({ reason: "" });
-              })}
-            >
-              <div className="space-y-2">
-                <Label htmlFor="reason">Reason</Label>
-                <textarea
-                  id="reason"
-                  rows={3}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-                  placeholder="e.g. Missing usage terms, unclear validity period, or invalid pricing."
-                  {...rejectForm.register("reason")}
-                />
-                {rejectForm.formState.errors.reason?.message ? (
-                  <div className="text-sm text-red-700">
-                    {rejectForm.formState.errors.reason.message}
-                  </div>
-                ) : null}
-              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setRejectingId(null);
-                    rejectForm.reset({ reason: "" });
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={rejectMutation.isPending}>
-                  {rejectMutation.isPending ? "Rejecting…" : "Reject"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      ) : null}
+          <form
+            className="mt-4 space-y-4"
+            onSubmit={rejectForm.handleSubmit(async (values) => {
+              if (!rejectingId) return;
+              await rejectMutation.mutateAsync({
+                id: rejectingId,
+                reason: values.reason,
+              });
+              setRejectingId(null);
+              rejectForm.reset({ reason: "" });
+            })}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason</Label>
+              <textarea
+                id="reason"
+                rows={3}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                placeholder="e.g. Missing usage terms, unclear validity period, or invalid pricing."
+                {...rejectForm.register("reason")}
+              />
+              {rejectForm.formState.errors.reason?.message ? (
+                <div className="text-sm text-red-700">
+                  {rejectForm.formState.errors.reason.message}
+                </div>
+              ) : null}
+            </div>
+
+            <AlertDialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setRejectingId(null);
+                  rejectForm.reset({ reason: "" });
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={rejectMutation.isPending}>
+                {rejectMutation.isPending ? "Rejecting…" : "Reject"}
+              </Button>
+            </AlertDialogFooter>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="space-y-3">
         <div className="flex items-end justify-between gap-3">

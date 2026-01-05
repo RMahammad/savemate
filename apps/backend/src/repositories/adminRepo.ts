@@ -1,5 +1,7 @@
 import { prisma } from "../db.js";
 
+type DealStatus = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+
 export async function listPendingDeals(input: { skip: number; take: number }) {
   const items = await prisma.deal.findMany({
     where: { status: "PENDING" },
@@ -30,6 +32,46 @@ export async function listPendingDeals(input: { skip: number; take: number }) {
   return items;
 }
 
+export async function listDeals(input: {
+  skip: number;
+  take: number;
+  status?: DealStatus;
+}) {
+  const items = await prisma.deal.findMany({
+    where: input.status ? { status: input.status } : {},
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    skip: input.skip,
+    take: input.take,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      usageTerms: true,
+      imageUrl: true,
+      price: true,
+      originalPrice: true,
+      discountPercent: true,
+      status: true,
+      city: true,
+      voivodeship: true,
+      categoryId: true,
+      tags: true,
+      validFrom: true,
+      validTo: true,
+      createdAt: true,
+      businessId: true,
+    },
+  });
+
+  return items;
+}
+
+export async function countDeals(input: { status?: DealStatus }) {
+  return prisma.deal.count({
+    where: input.status ? { status: input.status } : {},
+  });
+}
+
 export async function countPendingDeals() {
   return prisma.deal.count({ where: { status: "PENDING" } });
 }
@@ -53,6 +95,14 @@ export async function rejectDeal(id: string) {
   return prisma.deal.update({
     where: { id },
     data: { status: "REJECTED" },
+    select: { id: true, status: true },
+  });
+}
+
+export async function setDealStatus(id: string, status: DealStatus) {
+  return prisma.deal.update({
+    where: { id },
+    data: { status },
     select: { id: true, status: true },
   });
 }

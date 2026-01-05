@@ -664,6 +664,229 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/deals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    limit?: number;
+                    sort?: "newest";
+                    status?: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                title: string;
+                                description: string;
+                                usageTerms?: string | null;
+                                /** Format: uri */
+                                imageUrl?: string | null;
+                                price: number;
+                                originalPrice: number;
+                                discountPercent: number;
+                                /** @enum {string} */
+                                status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+                                city: string;
+                                /** @enum {string} */
+                                voivodeship: "DOLNOSLASKIE" | "KUJAWSKO_POMORSKIE" | "LUBELSKIE" | "LUBUSKIE" | "LODZKIE" | "MALOPOLSKIE" | "MAZOWIECKIE" | "OPOLSKIE" | "PODKARPACKIE" | "PODLASKIE" | "POMORSKIE" | "SLASKIE" | "SWIETOKRZYSKIE" | "WARMINSKO_MAZURSKIE" | "WIELKOPOLSKIE" | "ZACHODNIOPOMORSKIE";
+                                categoryId: string;
+                                tags: string[];
+                                /** Format: date-time */
+                                validFrom: string;
+                                /** Format: date-time */
+                                validTo: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                                businessId: string;
+                            }[];
+                            page: {
+                                page: number;
+                                limit: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/deals/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+                        reason?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            status: "PENDING" | "DRAFT" | "APPROVED" | "REJECTED" | "EXPIRED";
+                        };
+                    };
+                };
+                /** @description Error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                /** @enum {string} */
+                                code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "INTERNAL";
+                                message: string;
+                                details?: unknown;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/deals/{id}": {
         parameters: {
             query?: never;
@@ -2292,8 +2515,26 @@ export interface components {
              */
             sort: "newest";
         };
+        AdminAllDealsQuery: {
+            /** @default 1 */
+            page: number;
+            /** @default 20 */
+            limit: number;
+            /**
+             * @default newest
+             * @enum {string}
+             */
+            sort: "newest";
+            /** @enum {string} */
+            status?: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+        };
         AdminRejectInput: {
             reason: string;
+        };
+        AdminSetDealStatusInput: {
+            /** @enum {string} */
+            status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+            reason?: string;
         };
         Category: {
             id: string;
@@ -2473,6 +2714,39 @@ export interface components {
             businessId: string;
         };
         AdminPendingDealsListResponse: {
+            items: {
+                id: string;
+                title: string;
+                description: string;
+                usageTerms?: string | null;
+                /** Format: uri */
+                imageUrl?: string | null;
+                price: number;
+                originalPrice: number;
+                discountPercent: number;
+                /** @enum {string} */
+                status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED";
+                city: string;
+                /** @enum {string} */
+                voivodeship: "DOLNOSLASKIE" | "KUJAWSKO_POMORSKIE" | "LUBELSKIE" | "LUBUSKIE" | "LODZKIE" | "MALOPOLSKIE" | "MAZOWIECKIE" | "OPOLSKIE" | "PODKARPACKIE" | "PODLASKIE" | "POMORSKIE" | "SLASKIE" | "SWIETOKRZYSKIE" | "WARMINSKO_MAZURSKIE" | "WIELKOPOLSKIE" | "ZACHODNIOPOMORSKIE";
+                categoryId: string;
+                tags: string[];
+                /** Format: date-time */
+                validFrom: string;
+                /** Format: date-time */
+                validTo: string;
+                /** Format: date-time */
+                createdAt: string;
+                businessId: string;
+            }[];
+            page: {
+                page: number;
+                limit: number;
+                total: number;
+                totalPages: number;
+            };
+        };
+        AdminDealsListResponse: {
             items: {
                 id: string;
                 title: string;

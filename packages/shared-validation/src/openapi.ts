@@ -3,7 +3,12 @@ import {
   extendZodWithOpenApi,
 } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
-import { AdminDealsQuerySchema, AdminRejectSchema } from "./admin.js";
+import {
+  AdminAllDealsQuerySchema,
+  AdminDealsQuerySchema,
+  AdminRejectSchema,
+  AdminSetDealStatusSchema,
+} from "./admin.js";
 import {
   CategoryCreateSchema,
   CategorySchema,
@@ -29,7 +34,9 @@ registry.register("LoginInput", LoginSchema);
 registry.register("RegisterInput", RegisterSchema);
 
 registry.register("AdminDealsQuery", AdminDealsQuerySchema);
+registry.register("AdminAllDealsQuery", AdminAllDealsQuerySchema);
 registry.register("AdminRejectInput", AdminRejectSchema);
+registry.register("AdminSetDealStatusInput", AdminSetDealStatusSchema);
 
 registry.register("Category", CategorySchema);
 registry.register("CategoryCreateInput", CategoryCreateSchema);

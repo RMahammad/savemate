@@ -34,6 +34,19 @@ export function listPendingDeals(params: PendingDealsParams) {
   return typedApi.request("get", "/admin/deals/pending", { params });
 }
 
+export type AdminDealsParams =
+  paths["/admin/deals"]["get"]["parameters"] extends {
+    query?: infer Q;
+  }
+    ? Q
+    : never;
+
+export type AdminDealsResponse = SuccessJson<"/admin/deals", "get">;
+
+export function listAllDeals(params: AdminDealsParams) {
+  return typedApi.request("get", "/admin/deals", { params });
+}
+
 export type ApproveDealResponse = SuccessJson<
   "/admin/deals/{id}/approve",
   "post"
@@ -56,6 +69,22 @@ export type RejectDealResponse = SuccessJson<
 
 export function rejectDeal(id: string, body: RejectDealBody) {
   return typedApi.request("post", "/admin/deals/{id}/reject", {
+    pathParams: { id },
+    body,
+  });
+}
+
+export type AdminSetDealStatusBody = RequestJsonBody<
+  "/admin/deals/{id}/status",
+  "patch"
+>;
+export type AdminSetDealStatusResponse = SuccessJson<
+  "/admin/deals/{id}/status",
+  "patch"
+>;
+
+export function setDealStatus(id: string, body: AdminSetDealStatusBody) {
+  return typedApi.request("patch", "/admin/deals/{id}/status", {
     pathParams: { id },
     body,
   });

@@ -1,7 +1,9 @@
 import { Router } from "express";
 import {
+  AdminAllDealsQuerySchema,
   AdminDealsQuerySchema,
   AdminRejectSchema,
+  AdminSetDealStatusSchema,
   CategoryCreateSchema,
   CategoryIdParamsSchema,
   CategoryUpdateSchema,
@@ -18,13 +20,45 @@ import {
   approveDealForAdmin,
   createCategoryForAdmin,
   deleteCategoryForAdmin,
+  listDealsForAdmin,
   listCategoriesForAdmin,
   listPendingDealsForAdmin,
   rejectDealForAdmin,
+  setDealStatusForAdmin,
   updateCategoryForAdmin,
 } from "../services/adminService.js";
 
 export const adminRouter = Router();
+
+adminRouter.get(
+  "/deals",
+  requireAuth,
+  requireRole("ADMIN"),
+  validateQuery(AdminAllDealsQuerySchema),
+  async (req, res) => {
+    const q = req.query as any;
+    const result = await listDealsForAdmin(q);
+    return res.json(result);
+  }
+);
+
+adminRouter.patch(
+  "/deals/:id/status",
+  requireAuth,
+  requireRole("ADMIN"),
+  validateParams(DealIdParamsSchema),
+  validateBody(AdminSetDealStatusSchema),
+  async (req, res) => {
+    const user = (req as any).user as { userId: string };
+    const { id } = req.params as any;
+    const result = await setDealStatusForAdmin(
+      user.userId,
+      id,
+      req.body as any
+    );
+    return res.json(result);
+  }
+);
 
 adminRouter.get(
   "/deals/pending",

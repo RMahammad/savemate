@@ -20,6 +20,7 @@ function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
     { to: "/profile", label: "Profile", show: !!user },
     { to: "/business", label: "Business", show: user?.role === "BUSINESS" },
     { to: "/admin", label: "Admin", show: user?.role === "ADMIN" },
+    { to: "/admin/deals", label: "Deals", show: user?.role === "ADMIN" },
   ];
 
   return (

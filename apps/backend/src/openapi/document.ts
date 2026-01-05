@@ -6,8 +6,10 @@ import {
 import { z } from "zod";
 
 import {
+  AdminAllDealsQuerySchema,
   AdminDealsQuerySchema,
   AdminRejectSchema,
+  AdminSetDealStatusSchema,
   CategoryCreateSchema,
   CategoryIdParamsSchema,
   CategorySchema,
@@ -86,6 +88,11 @@ const AdminPendingDealsListResponseSchema = z.object({
   page: PageSchema,
 });
 
+const AdminDealsListResponseSchema = z.object({
+  items: z.array(AdminPendingDealSchema),
+  page: PageSchema,
+});
+
 const AdminModerationResponseSchema = z.object({
   id: z.string().min(1),
   status: z.enum(["PENDING", "DRAFT", "APPROVED", "REJECTED", "EXPIRED"]),
@@ -107,6 +114,7 @@ function buildRegistry(): OpenAPIRegistry {
     "AdminPendingDealsListResponse",
     AdminPendingDealsListResponseSchema
   );
+  registry.register("AdminDealsListResponse", AdminDealsListResponseSchema);
   registry.register("CategoriesListResponse", CategoriesListResponseSchema);
   registry.register("AuthAccessToken", AuthAccessTokenSchema);
 
@@ -263,6 +271,58 @@ function buildRegistry(): OpenAPIRegistry {
         },
       },
       400: ErrorResponse,
+      500: ErrorResponse,
+    },
+  });
+
+  // Admin
+  registry.registerPath({
+    method: "get",
+    path: "/admin/deals",
+    security: [{ bearerAuth: [] }],
+    request: {
+      query: AdminAllDealsQuerySchema,
+    },
+    responses: {
+      200: {
+        description: "OK",
+        content: {
+          "application/json": {
+            schema: AdminDealsListResponseSchema,
+          },
+        },
+      },
+      401: ErrorResponse,
+      500: ErrorResponse,
+    },
+  });
+
+  registry.registerPath({
+    method: "patch",
+    path: "/admin/deals/{id}/status",
+    security: [{ bearerAuth: [] }],
+    request: {
+      params: DealIdParamsSchema,
+      body: {
+        content: {
+          "application/json": {
+            schema: AdminSetDealStatusSchema,
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "OK",
+        content: {
+          "application/json": {
+            schema: AdminModerationResponseSchema,
+          },
+        },
+      },
+      400: ErrorResponse,
+      401: ErrorResponse,
+      404: ErrorResponse,
       500: ErrorResponse,
     },
   });

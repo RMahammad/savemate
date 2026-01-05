@@ -1,21 +1,51 @@
 import {
   type AdminDealsQuery,
   type AdminRejectInput,
+  type AdminAllDealsQuery,
+  type AdminSetDealStatusInput,
 } from "@savemate/shared-validation";
 
 import { AppError } from "../middlewares/AppError.js";
 import {
   approveDeal,
+  countDeals,
   countPendingDeals,
   createAuditLog,
   createCategory,
   deleteCategory,
   findDealById,
+  listDeals,
   listCategories,
   listPendingDeals,
   rejectDeal,
+  setDealStatus,
   updateCategory,
 } from "../repositories/adminRepo.js";
+
+export async function listDealsForAdmin(query: AdminAllDealsQuery) {
+  const skip = (query.page - 1) * query.limit;
+  const [items, total] = await Promise.all([
+    listDeals({ skip, take: query.limit, status: query.status }),
+    countDeals({ status: query.status }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / query.limit));
+
+  return {
+    items: items.map((d) => ({
+      ...d,
+      validFrom: d.validFrom.toISOString(),
+      validTo: d.validTo.toISOString(),
+      createdAt: d.createdAt.toISOString(),
+    })),
+    page: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages,
+    },
+  };
+}
 
 export async function listPendingDealsForAdmin(query: AdminDealsQuery) {
   const skip = (query.page - 1) * query.limit;
@@ -87,6 +117,27 @@ export async function rejectDealForAdmin(
     entity: "Deal",
     entityId: dealId,
     meta: { from: "PENDING", to: updated.status, reason: input.reason },
+  });
+
+  return updated;
+}
+
+export async function setDealStatusForAdmin(
+  actorId: string,
+  dealId: string,
+  input: AdminSetDealStatusInput
+) {
+  const deal = await findDealById(dealId);
+  if (!deal) throw new AppError("NOT_FOUND", "Deal not found", 404);
+
+  const updated = await setDealStatus(dealId, input.status);
+
+  await createAuditLog({
+    actorId,
+    action: "DEAL_SET_STATUS",
+    entity: "Deal",
+    entityId: dealId,
+    meta: { from: deal.status, to: updated.status, reason: input.reason },
   });
 
   return updated;
