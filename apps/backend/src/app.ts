@@ -12,6 +12,7 @@ import { dealsRouter } from "./routes/dealsRoutes.js";
 import { categoriesRouter } from "./routes/categoriesRoutes.js";
 import { businessDealsRouter } from "./routes/businessDealsRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
+import { getUploadsDir } from "./utils/uploads.js";
 
 export function createApp() {
   const app = express();
@@ -44,7 +45,19 @@ export function createApp() {
 
   app.use(cookieParser());
 
-  app.use(express.json({ limit: "1mb" }));
+  // Base64 image uploads can be several MB.
+  app.use(express.json({ limit: "10mb" }));
+
+  // Serve uploaded images (local storage)
+  app.use(
+    "/uploads",
+    express.static(getUploadsDir(), {
+      fallthrough: false,
+      setHeaders(res) {
+        res.setHeader("cache-control", "public, max-age=31536000, immutable");
+      },
+    })
+  );
 
   app.use(
     rateLimit({

@@ -13,6 +13,7 @@ import type { CategoriesListResponse } from "@/api/categories";
 import { listCategories } from "@/api/categories";
 import type { DealGetResponse } from "@/api/deals";
 import { getDeal } from "@/api/deals";
+import { API_BASE_URL } from "@/api/http";
 import { defaultFaqItems } from "@/content/faq";
 import type { DealsFeedResponse } from "@/features/deals/useDealsFeed";
 import { formatVoivodeshipLabel } from "@/lib/poland";
@@ -30,6 +31,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type DealFromFeed = DealsFeedResponse["items"][number];
 type DealDetailsModel = DealFromFeed | DealGetResponse;
+
+function resolveImageUrl(url: string) {
+  if (url.startsWith("/")) return `${API_BASE_URL}${url}`;
+  return url;
+}
 
 function formatDate(value: string) {
   try {
@@ -151,7 +157,7 @@ export function DealDetailsPage() {
           {deal.imageUrl ? (
             <div className="bg-slate-100">
               <img
-                src={deal.imageUrl}
+                src={resolveImageUrl(deal.imageUrl)}
                 alt={deal.title}
                 className="h-56 w-full object-cover"
                 loading="lazy"

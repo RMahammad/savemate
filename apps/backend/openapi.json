@@ -217,6 +217,19 @@
             "minLength": 1,
             "maxLength": 5000
           },
+          "imageBase64": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000000
+          },
+          "imageMime": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
+          },
           "imageUrl": {
             "type": "string",
             "maxLength": 2000,
@@ -310,6 +323,19 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 5000
+          },
+          "imageBase64": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000000
+          },
+          "imageMime": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
           },
           "imageUrl": {
             "type": "string",
@@ -3308,6 +3334,19 @@
                     "minLength": 1,
                     "maxLength": 5000
                   },
+                  "imageBase64": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000000
+                  },
+                  "imageMime": {
+                    "type": "string",
+                    "enum": [
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp"
+                    ]
+                  },
                   "imageUrl": {
                     "type": "string",
                     "maxLength": 2000,
@@ -3643,6 +3682,19 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 5000
+                  },
+                  "imageBase64": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000000
+                  },
+                  "imageMime": {
+                    "type": "string",
+                    "enum": [
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp"
+                    ]
                   },
                   "imageUrl": {
                     "type": "string",

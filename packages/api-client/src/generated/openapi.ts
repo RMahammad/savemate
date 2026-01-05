@@ -929,6 +929,9 @@ export interface paths {
                         title: string;
                         description: string;
                         usageTerms?: string;
+                        imageBase64?: string;
+                        /** @enum {string} */
+                        imageMime?: "image/jpeg" | "image/png" | "image/webp";
                         /** Format: uri */
                         imageUrl?: string;
                         price: number;
@@ -1172,6 +1175,9 @@ export interface paths {
                         title?: string;
                         description?: string;
                         usageTerms?: string;
+                        imageBase64?: string;
+                        /** @enum {string} */
+                        imageMime?: "image/jpeg" | "image/png" | "image/webp";
                         /** Format: uri */
                         imageUrl?: string;
                         price?: number;
@@ -2310,6 +2316,9 @@ export interface components {
             title: string;
             description: string;
             usageTerms?: string;
+            imageBase64?: string;
+            /** @enum {string} */
+            imageMime?: "image/jpeg" | "image/png" | "image/webp";
             /** Format: uri */
             imageUrl?: string;
             price: number;
@@ -2329,6 +2338,9 @@ export interface components {
             title?: string;
             description?: string;
             usageTerms?: string;
+            imageBase64?: string;
+            /** @enum {string} */
+            imageMime?: "image/jpeg" | "image/png" | "image/webp";
             /** Format: uri */
             imageUrl?: string;
             price?: number;

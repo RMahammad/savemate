@@ -13,6 +13,7 @@ import {
   listBusinessDeals,
   updateBusinessDeal,
 } from "../repositories/businessDealsRepo.js";
+import { saveUploadedImage } from "../utils/uploads.js";
 
 function toDateOrThrow(value: string, field: string): Date {
   const date = new Date(value);
@@ -47,11 +48,31 @@ export async function createMyDeal(businessId: string, input: DealCreateInput) {
   const validFrom = toDateOrThrow(input.validFrom, "validFrom");
   const validTo = toDateOrThrow(input.validTo, "validTo");
 
+  let imageUrl = input.imageUrl;
+  if (input.imageBase64) {
+    try {
+      imageUrl = (
+        await saveUploadedImage({
+          base64: input.imageBase64,
+          mime: input.imageMime,
+        })
+      ).url;
+    } catch (err) {
+      throw new AppError("VALIDATION_ERROR", "Invalid request", 400, {
+        fieldErrors: {
+          imageBase64: [
+            err instanceof Error ? err.message : "Invalid base64 image",
+          ],
+        },
+      });
+    }
+  }
+
   const created = await createBusinessDeal(businessId, {
     title: input.title,
     description: input.description,
     usageTerms: input.usageTerms,
-    imageUrl: input.imageUrl,
+    imageUrl,
     price: input.price,
     originalPrice: input.originalPrice,
     categoryId: input.categoryId,
@@ -84,6 +105,27 @@ export async function updateMyDeal(
     throw new AppError("FORBIDDEN", "Cannot modify another business deal", 403);
 
   const next: any = { ...input };
+
+  if (typeof input.imageBase64 === "string" && input.imageBase64.length > 0) {
+    try {
+      const saved = await saveUploadedImage({
+        base64: input.imageBase64,
+        mime: input.imageMime,
+      });
+      next.imageUrl = saved.url;
+      delete next.imageBase64;
+      delete next.imageMime;
+    } catch (err) {
+      throw new AppError("VALIDATION_ERROR", "Invalid request", 400, {
+        fieldErrors: {
+          imageBase64: [
+            err instanceof Error ? err.message : "Invalid base64 image",
+          ],
+        },
+      });
+    }
+  }
+
   if (typeof input.validFrom === "string")
     next.validFrom = toDateOrThrow(input.validFrom, "validFrom");
   if (typeof input.validTo === "string")
