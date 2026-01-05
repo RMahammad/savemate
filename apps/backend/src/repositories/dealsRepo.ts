@@ -10,24 +10,48 @@ function toDate(value: string | undefined): Date | undefined {
   return date;
 }
 
+function normalizeText(value: string | undefined): string | undefined {
+  const v = value?.trim();
+  return v ? v : undefined;
+}
+
+function caseVariants(value: string): string[] {
+  const v = value.trim();
+  if (!v) return [];
+  const lower = v.toLowerCase();
+  const upper = v.toUpperCase();
+  return Array.from(new Set([v, lower, upper]));
+}
+
 function normalizeTags(tags: DealsQuery["tags"]): string[] | undefined {
   if (!tags) return undefined;
-  if (typeof tags === "string") return [tags];
-  if (Array.isArray(tags)) return tags;
+  if (typeof tags === "string") {
+    const v = tags.trim();
+    return v ? [v] : undefined;
+  }
+  if (Array.isArray(tags)) {
+    const normalized = tags.map((t) => t.trim()).filter(Boolean);
+    return normalized.length ? normalized : undefined;
+  }
   return undefined;
 }
 
 export function buildApprovedDealsWhere(
   query: DealsQuery
 ): Prisma.DealWhereInput {
-  const tags = normalizeTags(query.tags);
+  const q = normalizeText(query.q);
+  const city = normalizeText(query.city);
+  const tagsRaw = normalizeTags(query.tags);
+  const tags = tagsRaw?.length
+    ? Array.from(new Set(tagsRaw.flatMap((t) => caseVariants(t))))
+    : undefined;
   const dateFrom = toDate(query.dateFrom);
   const dateTo = toDate(query.dateTo);
 
   const where: Prisma.DealWhereInput = {
     status: "APPROVED",
     ...(query.categoryId ? { categoryId: query.categoryId } : {}),
-    ...(query.city ? { city: query.city } : {}),
+    ...(city ? { city: { contains: city, mode: "insensitive" } } : {}),
     ...(query.voivodeship ? { voivodeship: query.voivodeship } : {}),
     ...(typeof query.minPrice === "number"
       ? { price: { gte: query.minPrice } }
@@ -46,11 +70,17 @@ export function buildApprovedDealsWhere(
       ? { discountPercent: { gte: query.discountMin } }
       : {}),
     ...(tags?.length ? { tags: { hasSome: tags } } : {}),
-    ...(query.q
+    ...(q
       ? {
           OR: [
-            { title: { contains: query.q } },
-            { description: { contains: query.q } },
+            { title: { contains: q, mode: "insensitive" } },
+            { description: { contains: q, mode: "insensitive" } },
+            { city: { contains: q, mode: "insensitive" } },
+            { voivodeship: { contains: q, mode: "insensitive" } },
+            { category: { is: { name: { contains: q, mode: "insensitive" } } } },
+            ...(caseVariants(q).length
+              ? [{ tags: { hasSome: caseVariants(q) } }]
+              : []),
           ],
         }
       : {}),

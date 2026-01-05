@@ -15,6 +15,17 @@ import {
 } from "../repositories/businessDealsRepo.js";
 import { saveUploadedImage } from "../utils/uploads.js";
 
+function normalizeTags(tags: string[]) {
+  return tags
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .map((t) => t.toLowerCase());
+}
+
+function normalizeCity(city: string) {
+  return city.trim();
+}
+
 function toDateOrThrow(value: string, field: string): Date {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -76,9 +87,9 @@ export async function createMyDeal(businessId: string, input: DealCreateInput) {
     price: input.price,
     originalPrice: input.originalPrice,
     categoryId: input.categoryId,
-    city: input.city,
+    city: normalizeCity(input.city),
     voivodeship: input.voivodeship,
-    tags: input.tags,
+    tags: normalizeTags(input.tags),
     validFrom,
     validTo,
   });
@@ -130,6 +141,9 @@ export async function updateMyDeal(
     next.validFrom = toDateOrThrow(input.validFrom, "validFrom");
   if (typeof input.validTo === "string")
     next.validTo = toDateOrThrow(input.validTo, "validTo");
+
+  if (typeof input.city === "string") next.city = normalizeCity(input.city);
+  if (Array.isArray((input as any).tags)) next.tags = normalizeTags((input as any).tags);
 
   return updateBusinessDeal(dealId, next);
 }
