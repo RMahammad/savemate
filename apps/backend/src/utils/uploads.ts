@@ -19,9 +19,9 @@ const UPLOAD_DIR = resolveUploadsDir();
 
 function resolveMaxUploadBytes(): number {
   const raw = process.env.UPLOAD_IMAGE_MAX_BYTES?.trim();
-  if (!raw) return 10_000_000; // ~10MB
+  if (!raw) return 15_000_000; // ~15MB
   const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed <= 0) return 10_000_000;
+  if (!Number.isFinite(parsed) || parsed <= 0) return 15_000_000;
   return Math.floor(parsed);
 }
 
@@ -85,11 +85,25 @@ export async function saveUploadedImage(input: {
     throw new Error(`Image too large (max ${maxMb}MB)`);
   }
 
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  try {
+    await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Uploads directory is not writable (${UPLOAD_DIR}). ${message}`
+    );
+  }
 
   const filename = `${randomUUID()}.${extForMime(mime)}`;
   const filePath = path.join(UPLOAD_DIR, filename);
-  await fs.writeFile(filePath, bytes);
+  try {
+    await fs.writeFile(filePath, bytes);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Failed to write uploaded image to ${UPLOAD_DIR}. ${message}`
+    );
+  }
 
   // Store a server-relative URL; frontend can prefix API base if needed.
   return { url: `/uploads/${filename}`, filename, bytes: bytes.byteLength };
