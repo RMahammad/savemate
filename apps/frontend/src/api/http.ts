@@ -52,13 +52,17 @@ api.interceptors.request.use((config) => {
 let refreshing: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
-  const res = await axios.post(
-    `${API_BASE_URL}/auth/refresh`,
-    {},
-    { withCredentials: true }
-  );
-  const token = res.data?.accessToken as string | undefined;
-  return token ?? null;
+  try {
+    const res = await axios.post(
+      `${API_BASE_URL}/auth/refresh`,
+      {},
+      { withCredentials: true }
+    );
+    const token = res.data?.accessToken as string | undefined;
+    return token ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function redirectToLoginIfPossible() {

@@ -38,7 +38,7 @@ const DealCreateBaseSchema = z.object({
   description: z.string().min(10).max(5000),
   usageTerms: z.string().min(1).max(5000).optional(),
   // Upload support: send base64 (optionally as data URL) and backend will persist and set imageUrl.
-  imageBase64: z.string().min(1).max(8_000_000).optional(),
+  imageBase64: z.string().min(1).max(15_000_000).optional(),
   imageMime: DealImageMimeSchema.optional(),
   // Also allow setting imageUrl directly (e.g. admin/backfill).
   imageUrl: z.string().url().max(2000).optional(),

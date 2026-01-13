@@ -17,6 +17,16 @@ function resolveUploadsDir() {
 
 const UPLOAD_DIR = resolveUploadsDir();
 
+function resolveMaxUploadBytes(): number {
+  const raw = process.env.UPLOAD_IMAGE_MAX_BYTES?.trim();
+  if (!raw) return 10_000_000; // ~10MB
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 10_000_000;
+  return Math.floor(parsed);
+}
+
+const DEFAULT_MAX_UPLOAD_BYTES = resolveMaxUploadBytes();
+
 type AllowedMime = "image/jpeg" | "image/png" | "image/webp";
 
 function extForMime(mime: AllowedMime) {
@@ -69,9 +79,10 @@ export async function saveUploadedImage(input: {
     mime: input.mime,
   });
 
-  const maxBytes = input.maxBytes ?? 2_500_000; // ~2.5MB
+  const maxBytes = input.maxBytes ?? DEFAULT_MAX_UPLOAD_BYTES;
   if (bytes.byteLength > maxBytes) {
-    throw new Error("Image too large");
+    const maxMb = Math.round(maxBytes / 1_000_000);
+    throw new Error(`Image too large (max ${maxMb}MB)`);
   }
 
   await fs.mkdir(UPLOAD_DIR, { recursive: true });
