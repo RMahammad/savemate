@@ -19,6 +19,7 @@ import { PriceBlock } from "@/components/common/PriceBlock";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { handleImgErrorSwapToFallback } from "@/lib/fallbackImage";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -187,6 +188,7 @@ export function AdminDealsPage() {
                         alt={d.title}
                         className="h-12 w-12 flex-none rounded-xl border border-slate-200 object-cover"
                         loading="lazy"
+                        onError={handleImgErrorSwapToFallback}
                       />
                     ) : (
                       <div className="h-12 w-12 flex-none rounded-xl border border-slate-200 bg-slate-50" />

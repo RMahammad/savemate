@@ -39,6 +39,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/sonner";
 import { API_BASE_URL } from "@/api/http";
+import { handleImgErrorSwapToFallback } from "@/lib/fallbackImage";
 
 const voivodeships = VoivodeshipSchema.options;
 
@@ -648,6 +649,7 @@ export function BusinessDashboardPage() {
                       src={resolveImageUrl(editing.imageUrl)}
                       alt="Current"
                       className="h-12 w-12 rounded-xl object-cover"
+                      onError={handleImgErrorSwapToFallback}
                     />
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-slate-900">
@@ -732,6 +734,7 @@ export function BusinessDashboardPage() {
                         alt=""
                         className="mt-0.5 h-10 w-10 rounded-xl object-cover"
                         loading="lazy"
+                        onError={handleImgErrorSwapToFallback}
                       />
                     ) : (
                       <div className="mt-0.5 h-10 w-10 rounded-xl border border-slate-200 bg-slate-50" />

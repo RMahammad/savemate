@@ -17,6 +17,7 @@ import { API_BASE_URL } from "@/api/http";
 import { defaultFaqItems } from "@/content/faq";
 import type { DealsFeedResponse } from "@/features/deals/useDealsFeed";
 import { formatVoivodeshipLabel } from "@/lib/poland";
+import { handleImgErrorSwapToFallback } from "@/lib/fallbackImage";
 import {
   Calendar,
   FileText,
@@ -161,6 +162,7 @@ export function DealDetailsPage() {
                 alt={deal.title}
                 className="h-56 w-full object-cover"
                 loading="lazy"
+                onError={handleImgErrorSwapToFallback}
               />
             </div>
           ) : null}

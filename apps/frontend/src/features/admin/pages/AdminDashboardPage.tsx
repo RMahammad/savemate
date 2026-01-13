@@ -1,3 +1,4 @@
+import { handleImgErrorSwapToFallback } from "@/lib/fallbackImage";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -301,6 +302,7 @@ export function AdminDashboardPage() {
                           alt={d.title}
                           className="h-12 w-12 flex-none rounded-xl border border-slate-200 object-cover"
                           loading="lazy"
+                          onError={handleImgErrorSwapToFallback}
                         />
                       ) : (
                         <div className="h-12 w-12 flex-none rounded-xl border border-slate-200 bg-slate-50" />
