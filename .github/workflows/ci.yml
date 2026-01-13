@@ -52,40 +52,6 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Write .env (from secrets)
-        if: ${{ github.event_name != 'pull_request' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const path = require('node:path');
-
-          const envPath = path.join(process.cwd(), '.env');
-
-          const keys = [
-            'PORT',
-            'DATABASE_URL',
-            'JWT_ACCESS_SECRET',
-            'JWT_REFRESH_SECRET',
-            'ACCESS_TOKEN_TTL_MIN',
-            'REFRESH_TOKEN_TTL_DAYS',
-            'CORS_ORIGIN',
-            'VITE_API_URL',
-          ];
-
-          const lines = [];
-          for (const key of keys) {
-            const val = process.env[key];
-            if (val == null || val === '') {
-              throw new Error(`Missing env ${key} (set it as a GitHub Secret)`);
-            }
-            lines.push(`${key}=${JSON.stringify(String(val))}`);
-          }
-
-          fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
-          NODE
-
       - name: Prisma generate (backend)
         run: pnpm -C apps/backend exec prisma generate
 
@@ -167,13 +133,50 @@ jobs:
             'VITE_API_URL',
           ];
 
-          const lines = [];
-          for (const key of required) {
-            const val = process.env[key];
-            if (val == null || val === '') {
+          function normalizeSecretValue(key, value) {
+            let v = String(value ?? '').trim();
+
+            // If someone pasted a JSON-stringified value into Secrets (e.g. "mongodb+srv://..."),
+            // try to decode it once so Prisma sees a clean mongo URL.
+            if (v.startsWith('"') && v.endsWith('"')) {
+              try {
+                v = JSON.parse(v);
+              } catch {
+                // fall through
+              }
+            }
+
+            // Strip surrounding quotes (common when users copy from .env examples)
+            if (
+              (v.startsWith('"') && v.endsWith('"')) ||
+              (v.startsWith("'") && v.endsWith("'"))
+            ) {
+              v = v.slice(1, -1);
+            }
+
+            // Avoid raw newlines in .env
+            v = v.replace(/\r?\n/g, '\\n');
+
+            if (!v) {
               throw new Error(`Missing env ${key} (set it as a GitHub Secret)`);
             }
-            lines.push(`${key}=${JSON.stringify(String(val))}`);
+            return v;
+          }
+
+          function formatEnvLine(key, value) {
+            // Keep it readable and Prisma-safe: write unquoted unless needed.
+            // Quote if it contains spaces, #, or quotes.
+            const needsQuotes = /\s|#|"/.test(value);
+            if (!needsQuotes) return `${key}=${value}`;
+            const escaped = value.replace(/"/g, '\\"');
+            return `${key}="${escaped}"`;
+          }
+
+          const lines = [];
+          for (const key of required) {
+            const raw = process.env[key];
+            const normalized = normalizeSecretValue(key, raw);
+            lines.push(formatEnvLine(key, normalized));
           }
 
           fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
