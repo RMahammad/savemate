@@ -10,8 +10,30 @@ import {
   type NormalizedError,
 } from "@/api/normalizedError";
 
-export const API_BASE_URL =
-  import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+export const API_BASE_URL = (() => {
+  const raw = import.meta.env.VITE_API_URL as string | undefined;
+
+  // Dev default: backend runs on localhost:4000.
+  // Prod default: same-origin via Nginx proxy on /api.
+  const fallback = import.meta.env.PROD ? "/api" : "http://localhost:4000";
+
+  // If VITE_API_URL is unset, use the environment-appropriate default.
+  if (raw == null) return fallback;
+
+  const trimmed = String(raw).trim();
+  if (!trimmed) return fallback;
+
+  // Common misconfig: VITE_API_URL set to the site origin (e.g. http://IP)
+  // while Nginx proxies the backend under /api.
+  // In that case, API calls like GET /deals hit the SPA (index.html) and the UI crashes.
+  if (typeof window !== "undefined") {
+    const origin = window.location.origin;
+    const normalized = trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
+    if (normalized === origin) return `${origin}/api`;
+  }
+
+  return trimmed;
+})();
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
