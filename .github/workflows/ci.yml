@@ -121,6 +121,9 @@ jobs:
       VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Deploy from /opt/savemate and restart PM2
         shell: bash
         run: |
@@ -132,24 +135,17 @@ jobs:
             exit 1
           fi
 
-          APP_DIR=/opt/savemate
-          if [ ! -d "$APP_DIR" ]; then
-            echo "Expected repo at $APP_DIR, but it does not exist. Clone it on the server first."
-            exit 1
-          fi
-
+          # Deploy in-place from the checked-out workspace.
+          # This keeps the workflow simple (no separate /opt clone required).
+          APP_DIR="$GITHUB_WORKSPACE"
           cd "$APP_DIR"
 
-          echo "[1/5] Update code (origin/main)"
-          git fetch origin main
-          git reset --hard origin/main
-
-          echo "[2/5] Write /opt/savemate/.env (from secrets)"
+          echo "[1/4] Write .env (from secrets)"
           node - <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
 
-          const envPath = path.join('/opt/savemate', '.env');
+          const envPath = path.join(process.cwd(), '.env');
 
           const required = [
             'PORT',
@@ -175,14 +171,14 @@ jobs:
           fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
           NODE
 
-          echo "[3/5] Install deps"
+          echo "[2/4] Install deps"
           corepack enable >/dev/null 2>&1 || true
           pnpm install --frozen-lockfile
 
-          echo "[4/5] Build"
+          echo "[3/4] Build"
           pnpm -C apps/backend exec prisma generate
           pnpm -C apps/frontend build
 
-          echo "[5/5] PM2 start/reload"
+          echo "[4/4] PM2 start/reload"
           pm2 startOrReload ecosystem.config.cjs --only savemate-backend --update-env
           pm2 save
