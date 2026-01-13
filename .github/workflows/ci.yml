@@ -205,7 +205,9 @@ jobs:
             exit 1
           fi
 
-          rsync -a --delete "apps/frontend/dist/" "$WEB_ROOT/"
+          # Use a non-root safe rsync: don't try to preserve owner/group from the source.
+          # Ensure nginx-readable permissions on the deployed files.
+          rsync -r --delete --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r "apps/frontend/dist/" "$WEB_ROOT/"
 
           echo "[4/4] PM2 start/reload"
           pm2 startOrReload ecosystem.config.cjs --only savemate-backend --update-env
