@@ -1,0 +1,203 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: self-hosted
+    # IMPORTANT for self-hosted runners:
+    # don't run untrusted fork PRs on your machine.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false }}
+
+    env:
+      # Backend
+      PORT: ${{ secrets.PORT }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+      JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+      ACCESS_TOKEN_TTL_MIN: ${{ secrets.ACCESS_TOKEN_TTL_MIN }}
+      REFRESH_TOKEN_TTL_DAYS: ${{ secrets.REFRESH_TOKEN_TTL_DAYS }}
+
+      CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+
+      # Frontend (Vite only exposes vars prefixed with VITE_*)
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Write .env (from secrets)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const envPath = path.join(process.cwd(), '.env');
+
+          const keys = [
+            'PORT',
+            'DATABASE_URL',
+            'JWT_ACCESS_SECRET',
+            'JWT_REFRESH_SECRET',
+            'ACCESS_TOKEN_TTL_MIN',
+            'REFRESH_TOKEN_TTL_DAYS',
+            'CORS_ORIGIN',
+            'VITE_API_URL',
+          ];
+
+          const lines = [];
+          for (const key of keys) {
+            const val = process.env[key];
+            if (val == null || val === '') {
+              throw new Error(`Missing env ${key} (set it as a GitHub Secret)`);
+            }
+            lines.push(`${key}=${JSON.stringify(String(val))}`);
+          }
+
+          fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
+          NODE
+
+      - name: Verify env is present (no secret values)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Env keys present (values hidden):"
+          for key in PORT DATABASE_URL JWT_ACCESS_SECRET JWT_REFRESH_SECRET ACCESS_TOKEN_TTL_MIN REFRESH_TOKEN_TTL_DAYS CORS_ORIGIN VITE_API_URL; do
+            if [ -n "${!key-}" ]; then
+              echo "- $key: set"
+            else
+              echo "- $key: MISSING"
+            fi
+          done
+
+      - name: Prisma generate (backend)
+        run: pnpm -C apps/backend exec prisma generate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build frontend
+        run: pnpm -C apps/frontend build
+
+      - name: Contract sync (OpenAPI) is committed
+        run: |
+          pnpm contract:sync
+          git diff --exit-code
+
+  deploy:
+    name: Deploy (PM2)
+    needs: ci
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+    steps:
+      - name: Deploy over SSH and restart PM2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_REF: ${{ github.sha }}
+
+          PORT: ${{ secrets.PORT }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          ACCESS_TOKEN_TTL_MIN: ${{ secrets.ACCESS_TOKEN_TTL_MIN }}
+          REFRESH_TOKEN_TTL_DAYS: ${{ secrets.REFRESH_TOKEN_TTL_DAYS }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          UPLOADS_DIR: ${{ secrets.UPLOADS_DIR }}
+
+          # Vite build-time value. If you proxy same-origin via Nginx,
+          # set this secret to an empty string.
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+        with:
+          host: ${{ secrets.UBUNTU_HOST }}
+          username: ${{ secrets.UBUNTU_USER }}
+          key: ${{ secrets.UBUNTU_SSH_KEY }}
+          port: ${{ secrets.UBUNTU_PORT }}
+          envs: >-
+            DEPLOY_REF,PORT,DATABASE_URL,JWT_ACCESS_SECRET,JWT_REFRESH_SECRET,
+            ACCESS_TOKEN_TTL_MIN,REFRESH_TOKEN_TTL_DAYS,CORS_ORIGIN,UPLOADS_DIR,VITE_API_URL
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            APP_DIR=/opt/savemate
+            cd "$APP_DIR"
+
+            echo "[1/4] Updating code to $DEPLOY_REF"
+            git fetch --all --tags
+            git checkout "$DEPLOY_REF"
+
+            echo "[2/4] Writing .env"
+            node - <<'NODE'
+            const fs = require('node:fs');
+            const path = require('node:path');
+
+            const envPath = path.join('/opt/savemate', '.env');
+
+            const required = [
+              'PORT',
+              'DATABASE_URL',
+              'JWT_ACCESS_SECRET',
+              'JWT_REFRESH_SECRET',
+              'ACCESS_TOKEN_TTL_MIN',
+              'REFRESH_TOKEN_TTL_DAYS',
+              'CORS_ORIGIN',
+              'UPLOADS_DIR',
+              'VITE_API_URL',
+            ];
+
+            const lines = [];
+            for (const key of required) {
+              const val = process.env[key];
+              if (val == null) {
+                throw new Error(`Missing env ${key} (set it as a GitHub Secret)`);
+              }
+              lines.push(`${key}=${JSON.stringify(String(val))}`);
+            }
+
+            fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
+            NODE
+
+            echo "[3/4] Installing deps + building"
+            corepack enable >/dev/null 2>&1 || true
+            pnpm install --frozen-lockfile
+            pnpm -C apps/backend exec prisma generate
+            VITE_API_URL="$VITE_API_URL" pnpm -C apps/frontend build
+
+            echo "[4/4] Restarting PM2"
+            pm2 start ecosystem.config.cjs --update-env || pm2 restart savemate-backend --update-env
+            pm2 save

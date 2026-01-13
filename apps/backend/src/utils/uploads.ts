@@ -2,7 +2,20 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-const UPLOAD_DIR = path.resolve(process.cwd(), "uploads");
+function resolveUploadsDir() {
+  const configured = process.env.UPLOADS_DIR?.trim();
+  if (configured) {
+    // Allow absolute paths (recommended for Docker volumes) and relative paths.
+    return path.isAbsolute(configured)
+      ? configured
+      : path.resolve(process.cwd(), configured);
+  }
+
+  // Default: keep current behavior (relative to backend cwd).
+  return path.resolve(process.cwd(), "uploads");
+}
+
+const UPLOAD_DIR = resolveUploadsDir();
 
 type AllowedMime = "image/jpeg" | "image/png" | "image/webp";
 

@@ -1,0 +1,62 @@
+services:
+  mongo:
+    image: mongo:7
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      - mongo
+    entrypoint:
+      [
+        "bash",
+        "-lc",
+        'mongosh --host mongo:27017 -u root -p root --authenticationDatabase admin --eval ''try { rs.status() } catch (e) { rs.initiate({_id:"rs0", members:[{_id:0, host:"mongo:27017"}]}) }''',
+      ]
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    depends_on:
+      - mongo-init
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      # Prisma Mongo connection
+      DATABASE_URL: mongodb://root:root@mongo:27017/savemate?authSource=admin&replicaSet=rs0
+      # JWT secrets (change in real deployments)
+      JWT_ACCESS_SECRET: dev_access_secret_change_me
+      JWT_REFRESH_SECRET: dev_refresh_secret_change_me
+      # Allow the browser to call backend from the frontend origin
+      CORS_ORIGIN: http://localhost:8080
+      # Uploads path inside container (mounted as volume)
+      UPLOADS_DIR: /data/uploads
+    ports:
+      - "4000:4000"
+    volumes:
+      - backend-uploads:/data/uploads
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        # Browser calls backend via host port mapping
+        VITE_API_URL: http://localhost:4000
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  mongo-data:
+  backend-uploads:
