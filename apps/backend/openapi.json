@@ -276,7 +276,7 @@
           "imageBase64": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 8000000
+            "maxLength": 25000000
           },
           "imageMime": {
             "type": "string",
@@ -383,7 +383,7 @@
           "imageBase64": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 8000000
+            "maxLength": 25000000
           },
           "imageMime": {
             "type": "string",
@@ -4136,7 +4136,7 @@
                   "imageBase64": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 8000000
+                    "maxLength": 25000000
                   },
                   "imageMime": {
                     "type": "string",
@@ -4485,7 +4485,7 @@
                   "imageBase64": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 8000000
+                    "maxLength": 25000000
                   },
                   "imageMime": {
                     "type": "string",
