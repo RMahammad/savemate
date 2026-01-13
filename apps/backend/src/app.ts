@@ -53,7 +53,9 @@ export function createApp() {
   app.use(cookieParser());
 
   // Base64 image uploads can be several MB.
-  app.use(express.json({ limit: "10mb" }));
+  // Keep these limits in sync with Nginx `client_max_body_size`.
+  app.use(express.json({ limit: "25mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 
   // Serve uploaded images (local storage)
   app.use(
