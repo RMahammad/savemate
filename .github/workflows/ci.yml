@@ -124,7 +124,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy from /opt/savemate and restart PM2
+      - name: Deploy and restart PM2
         shell: bash
         run: |
           set -euo pipefail
@@ -186,6 +186,17 @@ jobs:
           echo "[3/4] Build"
           pnpm -C apps/backend exec prisma generate
           pnpm -C apps/frontend build
+
+          echo "[3.5/4] Publish frontend to /var/www/savemate"
+          if [ ! -d "apps/frontend/dist" ]; then
+            echo "Expected apps/frontend/dist to exist after build"
+            exit 1
+          fi
+
+          sudo mkdir -p /var/www/savemate
+          sudo rsync -a --delete "apps/frontend/dist/" /var/www/savemate/
+          sudo chown -R www-data:www-data /var/www/savemate
+          sudo chmod -R u=rwX,g=rX,o=rX /var/www/savemate
 
           echo "[4/4] PM2 start/reload"
           pm2 startOrReload ecosystem.config.cjs --only savemate-backend --update-env
