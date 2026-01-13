@@ -129,6 +129,14 @@ jobs:
         run: |
           set -euo pipefail
 
+          # GitHub Actions can override HOME during a job.
+          # PM2 stores its process list under $PM2_HOME (defaults to $HOME/.pm2).
+          # Force a stable location so `pm2 list` matches your SSH session.
+          USER_HOME="$(getent passwd "$(whoami)" | cut -d: -f6)"
+          export HOME="$USER_HOME"
+          export PM2_HOME="$USER_HOME/.pm2"
+          mkdir -p "$PM2_HOME"
+
           if ! command -v pm2 >/dev/null 2>&1; then
             echo "pm2 is not installed on this self-hosted runner. Install it on the server:"
             echo "  sudo npm i -g pm2"
