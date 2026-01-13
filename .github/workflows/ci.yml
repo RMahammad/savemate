@@ -24,12 +24,10 @@ jobs:
       # Backend
       PORT: ${{ secrets.PORT }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
       JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
       ACCESS_TOKEN_TTL_MIN: ${{ secrets.ACCESS_TOKEN_TTL_MIN }}
       REFRESH_TOKEN_TTL_DAYS: ${{ secrets.REFRESH_TOKEN_TTL_DAYS }}
-
       CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
 
       # Frontend (Vite only exposes vars prefixed with VITE_*)
@@ -55,6 +53,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Write .env (from secrets)
+        if: ${{ github.event_name != 'pull_request' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -87,19 +86,6 @@ jobs:
           fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
           NODE
 
-      - name: Verify env is present (no secret values)
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Env keys present (values hidden):"
-          for key in PORT DATABASE_URL JWT_ACCESS_SECRET JWT_REFRESH_SECRET ACCESS_TOKEN_TTL_MIN REFRESH_TOKEN_TTL_DAYS CORS_ORIGIN VITE_API_URL; do
-            if [ -n "${!key-}" ]; then
-              echo "- $key: set"
-            else
-              echo "- $key: MISSING"
-            fi
-          done
-
       - name: Prisma generate (backend)
         run: pnpm -C apps/backend exec prisma generate
 
@@ -117,10 +103,86 @@ jobs:
           pnpm contract:sync
           git diff --exit-code
 
-      - name: Restart PM2 (backend)
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+  deploy:
+    name: Deploy on server (PM2)
+    needs: ci
+    runs-on: self-hosted
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+    env:
+      PORT: ${{ secrets.PORT }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+      JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+      ACCESS_TOKEN_TTL_MIN: ${{ secrets.ACCESS_TOKEN_TTL_MIN }}
+      REFRESH_TOKEN_TTL_DAYS: ${{ secrets.REFRESH_TOKEN_TTL_DAYS }}
+      CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+      UPLOADS_DIR: ${{ secrets.UPLOADS_DIR }}
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+    steps:
+      - name: Deploy from /opt/savemate and restart PM2
         shell: bash
         run: |
           set -euo pipefail
+
+          if ! command -v pm2 >/dev/null 2>&1; then
+            echo "pm2 is not installed on this self-hosted runner. Install it on the server:"
+            echo "  sudo npm i -g pm2"
+            exit 1
+          fi
+
+          APP_DIR=/opt/savemate
+          if [ ! -d "$APP_DIR" ]; then
+            echo "Expected repo at $APP_DIR, but it does not exist. Clone it on the server first."
+            exit 1
+          fi
+
+          cd "$APP_DIR"
+
+          echo "[1/5] Update code (origin/main)"
+          git fetch origin main
+          git reset --hard origin/main
+
+          echo "[2/5] Write /opt/savemate/.env (from secrets)"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const envPath = path.join('/opt/savemate', '.env');
+
+          const required = [
+            'PORT',
+            'DATABASE_URL',
+            'JWT_ACCESS_SECRET',
+            'JWT_REFRESH_SECRET',
+            'ACCESS_TOKEN_TTL_MIN',
+            'REFRESH_TOKEN_TTL_DAYS',
+            'CORS_ORIGIN',
+            'UPLOADS_DIR',
+            'VITE_API_URL',
+          ];
+
+          const lines = [];
+          for (const key of required) {
+            const val = process.env[key];
+            if (val == null || val === '') {
+              throw new Error(`Missing env ${key} (set it as a GitHub Secret)`);
+            }
+            lines.push(`${key}=${JSON.stringify(String(val))}`);
+          }
+
+          fs.writeFileSync(envPath, lines.join('\n') + '\n', { mode: 0o600 });
+          NODE
+
+          echo "[3/5] Install deps"
+          corepack enable >/dev/null 2>&1 || true
+          pnpm install --frozen-lockfile
+
+          echo "[4/5] Build"
+          pnpm -C apps/backend exec prisma generate
+          pnpm -C apps/frontend build
+
+          echo "[5/5] PM2 start/reload"
           pm2 startOrReload ecosystem.config.cjs --only savemate-backend --update-env
           pm2 save
