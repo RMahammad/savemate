@@ -196,6 +196,11 @@ jobs:
           WEB_ROOT="/var/www/savemate"
           if [ ! -d "$WEB_ROOT" ] || [ ! -w "$WEB_ROOT" ]; then
             echo "Frontend publish directory is missing or not writable: $WEB_ROOT"
+            echo "Debug: user=$(whoami) uid=$(id -u) groups=$(id -nG)"
+            echo "Debug: ls -ld /var/www || true"
+            ls -ld /var/www || true
+            echo "Debug: ls -ld $WEB_ROOT || true"
+            ls -ld "$WEB_ROOT" || true
             echo "Run this ONCE on the server (interactive SSH) to allow the runner user to deploy without sudo:"
             echo "  sudo mkdir -p $WEB_ROOT"
             echo "  sudo chown -R $(whoami):www-data $WEB_ROOT"
