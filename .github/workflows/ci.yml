@@ -193,10 +193,19 @@ jobs:
             exit 1
           fi
 
-          sudo mkdir -p /var/www/savemate
-          sudo rsync -a --delete "apps/frontend/dist/" /var/www/savemate/
-          sudo chown -R www-data:www-data /var/www/savemate
-          sudo chmod -R u=rwX,g=rX,o=rX /var/www/savemate
+          WEB_ROOT="/var/www/savemate"
+          if [ ! -d "$WEB_ROOT" ] || [ ! -w "$WEB_ROOT" ]; then
+            echo "Frontend publish directory is missing or not writable: $WEB_ROOT"
+            echo "Run this ONCE on the server (interactive SSH) to allow the runner user to deploy without sudo:"
+            echo "  sudo mkdir -p $WEB_ROOT"
+            echo "  sudo chown -R $(whoami):www-data $WEB_ROOT"
+            echo "  sudo chmod 2775 $WEB_ROOT"
+            echo "  sudo find $WEB_ROOT -type d -exec chmod 2775 {} +"
+            echo "  sudo find $WEB_ROOT -type f -exec chmod 664 {} +"
+            exit 1
+          fi
+
+          rsync -a --delete "apps/frontend/dist/" "$WEB_ROOT/"
 
           echo "[4/4] PM2 start/reload"
           pm2 startOrReload ecosystem.config.cjs --only savemate-backend --update-env
