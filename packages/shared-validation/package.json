@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@savemate/config": "workspace:*",
-    "@types/node": "^20.11.0"
+    "@types/node": "^25.0.7"
   },
   "dependencies": {
     "zod": "^3.24.1",

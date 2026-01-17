@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@savemate/config": "workspace:*",
-    "@types/node": "^20.11.0",
+    "@types/node": "^25.0.7",
     "openapi-typescript": "^7.5.2",
     "typescript": "^5.0.0"
   }
